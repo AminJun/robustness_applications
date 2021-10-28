@@ -14,19 +14,26 @@ class SoftLabelData:
         return self.get_labels(mode)
 
     def get_labels(self, mode: int) -> torch.tensor:
-        modes = [self.get_1_eval, self.get_1_train, self.get_mean, self.get_dist, self.one_hot]
+        modes = [self.get_one_e, self.get_one_t, self.get_mean_t, self.get_mean_e,
+                 self.get_dist_e, self.get_dist_t, self.one_hot]
         return modes[mode]()
 
-    def get_1_eval(self) -> torch.tensor:
+    def get_one_e(self) -> torch.tensor:
         raise NotImplementedError
 
-    def get_1_train(self) -> torch.tensor:
+    def get_one_t(self) -> torch.tensor:
         raise NotImplementedError
 
-    def get_mean(self) -> torch.tensor:
+    def get_mean_t(self) -> torch.tensor:
         raise NotImplementedError
 
-    def get_dist(self) -> torch.tensor:
+    def get_mean_e(self) -> torch.tensor:
+        raise NotImplementedError
+
+    def get_dist_t(self) -> torch.tensor:
+        raise NotImplementedError
+
+    def get_dist_e(self) -> torch.tensor:
         raise NotImplementedError
 
     def one_hot(self) -> torch.tensor:

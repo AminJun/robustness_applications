@@ -31,7 +31,7 @@ class CachedData(SoftLabelData):
     def __init__(self, cache_path: str, mode: int = -1):
         super().__init__(-1, mode=mode)
         self._path = cache_path
-        self.one_t = self.one_e = self.mean_t = self.mean_e = None
+        self.one_t = self.one_e = self.mean_t = self.mean_e = self.sample_t = self.sample_e = None
 
     @torch.no_grad()
     def cache(self, model: nn.Module, train: DataLoader, test: DataLoader):
@@ -49,9 +49,8 @@ class CachedData(SoftLabelData):
         self.mean_e = self._run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
         cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
         cov_e = self._run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e)
-        self.samp_t = self._run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=cov_t)
-        pdb.set_trace()
-        self.samp_e = self._run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=cov_e)
+        self.sample_t = self._run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=cov_t)
+        self.sample_e = self._run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=cov_e)
 
     @torch.no_grad()
     def cache_sampled_t(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
@@ -121,14 +120,20 @@ class CachedData(SoftLabelData):
             labels.append(y.detach().clone())
         return torch.cat(images).cpu(), torch.cat(labels).cpu()
 
-    def get_1_eval(self) -> torch.tensor:
-        pass
+    def get_one_e(self) -> torch.tensor:
+        return self.one_e
 
-    def get_1_train(self) -> torch.tensor:
-        pass
+    def get_one_t(self) -> torch.tensor:
+        return self.one_t
 
-    def get_mean(self) -> torch.tensor:
-        pass
+    def get_mean_t(self) -> torch.tensor:
+        return self.mean_t
 
-    def get_dist(self) -> torch.tensor:
-        pass
+    def get_mean_e(self) -> torch.tensor:
+        return self.mean_e
+
+    def get_dist_t(self) -> torch.tensor:
+        return self.sample_t
+
+    def get_dist_e(self) -> torch.tensor:
+        return self.sample_e
