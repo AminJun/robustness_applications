@@ -5,7 +5,7 @@ from dist import ImageNetMultiVariate
 from robustness import model_utils, datasets
 from robustness.tools.vis_tools import show_image_row
 from robustness.tools.label_maps import CLASS_DICT
-from soft_xent.base import SoftCrossEntropy
+from soft_xent import SoftCrossEntropy, CachedData
 from user_constants import DATA_PATH_DICT
 
 GLOBAL_MODE = 3
@@ -59,6 +59,10 @@ img_seed = ch.stack([conditionals[i].sample().view(3, DATA_SHAPE // GRAIN, DATA_
 img_seed = ch.clamp(img_seed, min=0, max=1)
 show_image_row([img_seed.cpu()], tlist=[[f'Class {i}' for i in range(NUM_CLASSES_VIS)]])
 
+cached_data = CachedData('.', GLOBAL_MODE)
+label = cached_data()
+print(label)
+
 
 def get_loss(mode: int):
     def generation_loss(mod, inp, targ):
@@ -66,7 +70,7 @@ def get_loss(mode: int):
         if mode is 4:
             loss = ch.nn.CrossEntropyLoss(reduction='none')(op, targ)
         else:
-            loss = SoftCrossEntropy(mode=mode)(op, targ)
+            loss = SoftCrossEntropy(label)(op, targ)
         return loss, None
 
     return generation_loss
