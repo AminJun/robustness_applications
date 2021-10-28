@@ -4,6 +4,8 @@ import sys
 from torch import nn
 from torch.utils.data import DataLoader
 import torch
+from tqdm import tqdm
+
 from .base import SoftLabelData
 import pdb
 
@@ -45,7 +47,7 @@ class CachedData(SoftLabelData):
     @torch.no_grad()
     def cache_loader(self, model: nn.Module, loader: DataLoader) -> (torch.tensor, torch.tensor):
         images, labels = [], []
-        for x, y in loader:
+        for x, y in tqdm(loader):
             x = x.to(self._device)
             y = y.to(self._device)
             images.append(model(x).detach().clone())
