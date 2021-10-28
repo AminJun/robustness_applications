@@ -8,7 +8,7 @@ from robustness.tools.label_maps import CLASS_DICT
 from soft_cross_entorpy import SoftCrossEntropy
 from user_constants import DATA_PATH_DICT
 
-GLOBAL_MODE = 4
+GLOBAL_MODE = 3
 # 4: xent
 # 3: MultiVarLabel
 # 2: 1 Train
@@ -66,7 +66,7 @@ def get_loss(mode: int):
         if mode is 4:
             loss = ch.nn.CrossEntropyLoss(reduction='none')(op, targ)
         else:
-            loss = SoftCrossEntropy(mode=mode)
+            loss = SoftCrossEntropy(mode=mode)(op, targ)
         return loss, None
 
     return generation_loss
