@@ -34,7 +34,7 @@ class CachedData(SoftLabelData):
     @torch.no_grad()
     def cache(self, model: nn.Module, train: DataLoader, test: DataLoader):
         t_x, t_y = self._run_or_load(self.cache_train, model=model, train=train)
-        e_x, e_y = self._run_or_load(self.cache_test, model=model, eval=test)
+        e_x, e_y = self._run_or_load(self.cache_test, model=model, test=test)
         classes = t_y.unique()
         self.n = len(classes)
         self.one_t = self._run_or_load(self.cache_one_train, predictions=t_x, targets=t_y)
