@@ -35,6 +35,7 @@ class CachedData(SoftLabelData):
     def cache(self, model: nn.Module, train: DataLoader, eval: DataLoader):
         t_x, t_y = self._run_or_load(self.cache_train, model=model, train=train)
         e_x, e_y = self._run_or_load(self.cache_eval, model=model, eval=eval)
+        pdb.set_trace()
 
     @torch.no_grad()
     def cache_train(self, model: nn.Module, train: DataLoader) -> (torch.tensor, torch.tensor):
