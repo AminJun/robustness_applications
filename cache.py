@@ -42,8 +42,18 @@ model_kwargs = {
 model, _ = model_utils.make_and_restore_model(**model_kwargs)
 model.eval()
 
+
+class FirstOutputWrapper(ch.nn.Module):
+    def __init__(self, model: ch.nn.Module):
+        super().__init__()
+        self.m = model
+
+    def forward(self, x) -> ch.tensor:
+        return self.m(x)[0]
+
+
 c = CachedData('.', )
-c.cache(model, train_loader, test_loader)
+c.cache(FirstOutputWrapper(model), train_loader, test_loader)
 
 
 def downsample(x, step=GRAIN):
@@ -91,3 +101,38 @@ img_seed = ch.stack([conditionals[i].sample().view(3, DATA_SHAPE // GRAIN, DATA_
                      for i in range(NUM_CLASSES_VIS)])
 img_seed = ch.clamp(img_seed, min=0, max=1)
 show_image_row([img_seed.cpu()], tlist=[[f'Class {i}' for i in range(NUM_CLASSES_VIS)]])
+
+
+def generation_loss(mod, inp, targ):
+    op = mod(inp)
+    loss = ch.nn.CrossEntropyLoss(reduction='none')(op, targ)
+    return loss, None
+
+
+kwargs = {
+    'custom_loss': generation_loss,
+    'constraint': '2',
+    'eps': 40,
+    'step_size': 1,
+    'iterations': 60,
+    'targeted': True,
+}
+
+if DATA == 'CIFAR':
+    kwargs['eps'] = 30
+    kwargs['step_size'] = 0.5
+    kwargs['iterations'] = 60
+
+show_seed = False
+for i in range(NUM_CLASSES_VIS):
+    target_class = i * ch.ones((BATCH_SIZE,))
+    im_seed = ch.stack([conditionals[int(t)].sample().view(3, DATA_SHAPE // GRAIN, DATA_SHAPE // GRAIN)
+                        for t in target_class])
+
+    im_seed = upsample(ch.clamp(im_seed, min=0, max=1))
+    _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
+    if show_seed:
+        show_image_row([im_seed.cpu()], [f'Seed ($x_0$)'], fontsize=18)
+    show_image_row([im_gen.detach().cpu()],
+                   [CLASSES[int(t)].split(',')[0] for t in target_class],
+                   fontsize=18)
