@@ -124,6 +124,7 @@ for i in tqdm(range(NUM_CLASSES_VIS)):
     _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
     images.append(im_gen)
 
+images = ch.cat(images)
 os.makedirs(f'desktop/m{GLOBAL_MODE}', exist_ok=True)
 for i, im in enumerate(images):
     torchvision.utils.save_image(im, f'desktop/m{GLOBAL_MODE}/{i}.png')
