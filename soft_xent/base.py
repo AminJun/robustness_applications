@@ -51,9 +51,8 @@ class SoftCrossEntropy(nn.Module):
         self.reduction = reduction
 
     def forward(self, prediction: torch.tensor, target: torch.tensor) -> torch.tensor:
-        import pdb; pdb.set_trace()
         target = self.label[target]
-        loss = -torch.sum(target * self.log_soft_max(prediction)) * self.coef
+        loss = -torch.sum(target * self.log_soft_max(prediction), dim=-1) * self.coef
         if self.reduction is 'mean':
             loss = loss.mean()
         return loss

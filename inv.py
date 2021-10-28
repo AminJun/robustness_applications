@@ -83,10 +83,12 @@ print(label)
 def get_loss(mode: int):
     def generation_loss(mod, inp, targ):
         op = mod(inp)
-        if mode is 4:
-            loss = ch.nn.CrossEntropyLoss(reduction='none')(op, targ)
-        else:
-            loss = SoftCrossEntropy(label, reduction='none')(op, targ)
+        # if mode is 4:
+        #    loss = ch.nn.CrossEntropyLoss(reduction='none')(op, targ)
+        # else:
+        #     loss = SoftCrossEntropy(label, reduction='none')(op, targ)
+        #    pdb.set_trace()
+        loss = SoftCrossEntropy(label, reduction='none')(op, targ)
         return loss, None
 
     return generation_loss
@@ -108,6 +110,8 @@ if DATA == 'CIFAR':
 
 show_seed = False
 images = []
+
+print("========== Starting =============")
 for i in tqdm(range(NUM_CLASSES_VIS)):
     target_class = i * ch.ones((BATCH_SIZE,)).cuda()
     im_seed = ch.stack([conditionals[int(t)].sample().view(3, DATA_SHAPE // GRAIN, DATA_SHAPE // GRAIN)
@@ -116,4 +120,4 @@ for i in tqdm(range(NUM_CLASSES_VIS)):
     im_seed = upsample(ch.clamp(im_seed, min=0, max=1)).cuda()
     _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
     images.append(im_gen)
-torchvision.utils.save_image(ch.cat(images), f'desktop/gen{GLOBAL_MODE}.png')
+    torchvision.utils.save_image(ch.cat(images), f'desktop/comp{GLOBAL_MODE}.png')
