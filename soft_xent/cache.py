@@ -35,6 +35,10 @@ class CachedData(SoftLabelData):
     def cache(self, model: nn.Module, train: DataLoader, test: DataLoader):
         t_x, t_y = self._run_or_load(self.cache_train, model=model, train=train)
         e_x, e_y = self._run_or_load(self.cache_test, model=model, test=test)
+
+        sm = torch.nn.Softmax()
+        t_x, e_x = sm(t_x), sm(e_x)
+
         classes = t_y.unique()
         self.n = len(classes)
         self.one_t = self._run_or_load(self.cache_one_train, predictions=t_x, targets=t_y)
@@ -66,8 +70,6 @@ class CachedData(SoftLabelData):
 
     @torch.no_grad()
     def cache_mean(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        sm = torch.nn.Softmax()
-        predictions = sm(predictions)
         return torch.stack([predictions[targets == i].mean(dim=0) for i in range(self.n)])
 
     @torch.no_grad()
