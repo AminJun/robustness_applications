@@ -45,16 +45,21 @@ class CachedData(SoftLabelData):
         self.one_e = self._run_or_load(self.cache_one_test, predictions=e_x, targets=e_y)
         self.mean_t = self._run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y)
         self.mean_e = self._run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
-        self.cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y)
-
-    @torch.no_grad()
-    def cache_dist_t(self, p: torch.tensor, t: torch.tensor) -> torch.tensor:
-        return self.cache_dist(p, t)
-
-    @torch.no_grad()
-    def cache_dist(self, p: torch.tensor, t: torch.tensor) -> torch.tensor:
+        self.cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
         pdb.set_trace()
-        return None
+
+    @torch.no_grad()
+    def cache_dist_t(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
+        return self.cache_dist(p, t, m)
+
+    @torch.no_grad()
+    def cache_dist(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
+        cov = []
+        for i in range(self.n):
+            imc = p[t == i]
+            normalized = imc - m[i].unsqueeze(dim=0)
+            cov.append((normalized.t() @ normalized / len(imc)) + (1e-6 * torch.eye(self.n)))
+        return torch.stack(cov)
 
     @torch.no_grad()
     def cache_one_train(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
