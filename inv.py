@@ -3,9 +3,9 @@ import torch as ch
 from tqdm import tqdm
 from dist import ImageNetMultiVariate
 from robustness import model_utils, datasets
-from robustness.tools.vis_tools import show_image_row, show_image_column
+from robustness.tools.vis_tools import show_image_row
 from robustness.tools.label_maps import CLASS_DICT
-from soft_cross_entorpy import SoftCrossEntropy
+from soft_xent.imagenet1000 import SoftCrossEntropy
 from user_constants import DATA_PATH_DICT
 
 GLOBAL_MODE = 3
