@@ -1,4 +1,5 @@
 import os
+import pdb
 
 import sys
 import torch as ch
@@ -6,9 +7,10 @@ from torch.distributions.multivariate_normal import MultivariateNormal
 import numpy as np
 # import seaborn as sns
 # from scipy import stats
-import pdb 
+import pdb
 from tqdm import tqdm, tqdm_notebook
 import matplotlib.pyplot as plt
+from dist import ImageNetMultiVariate
 from robustness import model_utils, datasets
 from robustness.tools.vis_tools import show_image_row, show_image_column
 from robustness.tools.label_maps import CLASS_DICT
@@ -30,10 +32,10 @@ GRAIN = 4 if DATA != 'CIFAR' else 1
 # Load dataset
 dataset_function = getattr(datasets, DATA)
 dataset = dataset_function(DATA_PATH_DICT[DATA])
-_, test_loader = dataset.make_loaders(workers=NUM_WORKERS,
-                                      batch_size=BATCH_SIZE,
-                                      data_aug=False)
-data_iterator = enumerate(test_loader)
+# _, test_loader = dataset.make_loaders(workers=NUM_WORKERS,
+#                                       batch_size=BATCH_SIZE,
+#                                       data_aug=False)
+# data_iterator = enumerate(test_loader)
 
 # Load model
 model_kwargs = {
@@ -46,15 +48,15 @@ model, _ = model_utils.make_and_restore_model(**model_kwargs)
 model.eval()
 
 
-def downsample(x, step=GRAIN):
-    down = ch.zeros([len(x), 3, DATA_SHAPE // step, DATA_SHAPE // step])
-
-    for i in range(0, DATA_SHAPE, step):
-        for j in range(0, DATA_SHAPE, step):
-            v = x[:, :, i:i + step, j:j + step].mean(dim=2, keepdim=True).mean(dim=3, keepdim=True)
-            ii, jj = i // step, j // step
-            down[:, :, ii:ii + 1, jj:jj + 1] = v
-    return down
+# def downsample(x, step=GRAIN):
+#     down = ch.zeros([len(x), 3, DATA_SHAPE // step, DATA_SHAPE // step])
+#
+#     for i in range(0, DATA_SHAPE, step):
+#         for j in range(0, DATA_SHAPE, step):
+#             v = x[:, :, i:i + step, j:j + step].mean(dim=2, keepdim=True).mean(dim=3, keepdim=True)
+#             ii, jj = i // step, j // step
+#             down[:, :, ii:ii + 1, jj:jj + 1] = v
+#     return down
 
 
 def upsample(x, step=GRAIN):
@@ -67,47 +69,49 @@ def upsample(x, step=GRAIN):
     return up
 
 
-im_test, targ_test = [], []
-for _, (im, targ) in enumerate(tqdm(test_loader)):
-    im_test.append(im)
-    targ_test.append(targ)
-im_test, targ_test = ch.cat(im_test), ch.cat(targ_test)
+# im_test, targ_test = [], []
+# for _, (im, targ) in enumerate(tqdm(test_loader)):
+#     im_test.append(im)
+#     targ_test.append(targ)
+# im_test, targ_test = ch.cat(im_test), ch.cat(targ_test)
 
-conditionals = []
-import time
-cur_time = time.time()
-for i in tqdm(range(NUM_CLASSES_VIS)):
-    print('In %s \t Get class'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    imc = im_test[targ_test == i]
-    print('In %s \t Downsample'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    down_flat = downsample(imc).view(len(imc), -1)
-    print('In %s \t Comp Mean'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    mean = down_flat.mean(dim=0)
-    print('In %s \t Normalize'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    down_flat = down_flat - mean.unsqueeze(dim=0)
-    print('In %s \t Compute Conv'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    cov = down_flat.t() @ down_flat / len(imc)
-    print('In %s \t Make MultiVariate'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    print('In %s \t Make MultiVariate'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    save_cov =cov + 1e-4 * ch.eye(3 * DATA_SHAPE // GRAIN * DATA_SHAPE // GRAIN)
-    save_mean = mean 
-    ch.save(save_cov, f'cov{i}.pt')
-    ch.save(save_mean, f'mean{i}.pt')
-    dist = MultivariateNormal(mean, covariance_matrix=save_cov)
-    print('In %s \t Append'% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
-    conditionals.append(dist)
-    print('In %s \t =========='% ( time.time() - cur_time), flush=True)
-    cur_time = time.time()
+# conditionals = []
+# import time
+# cur_time = time.time()
+# for i in tqdm(range(NUM_CLASSES_VIS)):
+#     print('In %s \t Get class'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     imc = im_test[targ_test == i]
+#     print('In %s \t Downsample'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     pdb.set_trace()
+#     down_flat = downsample(imc).view(len(imc), -1)
+#     print('In %s \t Comp Mean'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     mean = down_flat.mean(dim=0)
+#     print('In %s \t Normalize'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     down_flat = down_flat - mean.unsqueeze(dim=0)
+#     print('In %s \t Compute Conv'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     cov = down_flat.t() @ down_flat / len(imc)
+#     print('In %s \t Make MultiVariate'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     print('In %s \t Make MultiVariate'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     save_cov =cov + 1e-4 * ch.eye(3 * DATA_SHAPE // GRAIN * DATA_SHAPE // GRAIN)
+#     save_mean = mean
+#     ch.save(save_cov, f'cov{i}.pt')
+#     ch.save(save_mean, f'mean{i}.pt')
+#     dist = MultivariateNormal(mean, covariance_matrix=save_cov)
+#     print('In %s \t Append'% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
+#     conditionals.append(dist)
+#     print('In %s \t =========='% ( time.time() - cur_time), flush=True)
+#     cur_time = time.time()
 
 # Visualize seeds
+conditionals = ImageNetMultiVariate()
 img_seed = ch.stack([conditionals[i].sample().view(3, DATA_SHAPE // GRAIN, DATA_SHAPE // GRAIN)
                      for i in range(NUM_CLASSES_VIS)])
 img_seed = ch.clamp(img_seed, min=0, max=1)
