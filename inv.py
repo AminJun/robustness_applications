@@ -6,6 +6,7 @@ from torch.distributions.multivariate_normal import MultivariateNormal
 import numpy as np
 # import seaborn as sns
 # from scipy import stats
+import pdb 
 from tqdm import tqdm, tqdm_notebook
 import matplotlib.pyplot as plt
 from robustness import model_utils, datasets
@@ -67,21 +68,44 @@ def upsample(x, step=GRAIN):
 
 
 im_test, targ_test = [], []
-for _, (im, targ) in enumerate(test_loader):
+for _, (im, targ) in enumerate(tqdm(test_loader)):
     im_test.append(im)
     targ_test.append(targ)
 im_test, targ_test = ch.cat(im_test), ch.cat(targ_test)
 
 conditionals = []
+import time
+cur_time = time.time()
 for i in tqdm(range(NUM_CLASSES_VIS)):
+    print('In %s \t Get class'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
     imc = im_test[targ_test == i]
+    print('In %s \t Downsample'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
     down_flat = downsample(imc).view(len(imc), -1)
+    print('In %s \t Comp Mean'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
     mean = down_flat.mean(dim=0)
+    print('In %s \t Normalize'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
     down_flat = down_flat - mean.unsqueeze(dim=0)
+    print('In %s \t Compute Conv'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
     cov = down_flat.t() @ down_flat / len(imc)
-    dist = MultivariateNormal(mean,
-                              covariance_matrix=cov + 1e-4 * ch.eye(3 * DATA_SHAPE // GRAIN * DATA_SHAPE // GRAIN))
+    print('In %s \t Make MultiVariate'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
+    print('In %s \t Make MultiVariate'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
+    save_cov =cov + 1e-4 * ch.eye(3 * DATA_SHAPE // GRAIN * DATA_SHAPE // GRAIN)
+    save_mean = mean 
+    ch.save(save_cov, f'cov{i}.pt')
+    ch.save(save_mean, f'mean{i}.pt')
+    dist = MultivariateNormal(mean, covariance_matrix=save_cov)
+    print('In %s \t Append'% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
     conditionals.append(dist)
+    print('In %s \t =========='% ( time.time() - cur_time), flush=True)
+    cur_time = time.time()
 
 # Visualize seeds
 img_seed = ch.stack([conditionals[i].sample().view(3, DATA_SHAPE // GRAIN, DATA_SHAPE // GRAIN)
