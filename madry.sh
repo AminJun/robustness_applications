@@ -1,0 +1,9 @@
+python inv.py 0
+python inv.py 1
+python inv.py 2
+python inv.py 3
+python inv.py 4
+python inv.py 5
+python inv.py 6
+python inv.py 7
+python inv.py 8
