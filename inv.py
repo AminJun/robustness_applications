@@ -7,9 +7,10 @@ from robustness import model_utils, datasets
 from robustness.tools.vis_tools import show_image_row
 from robustness.tools.label_maps import CLASS_DICT
 from soft_xent import SoftCrossEntropy, CachedData
+import sys
 from user_constants import DATA_PATH_DICT
 
-GLOBAL_MODE = 0
+GLOBAL_MODE = int(sys.argv[1])
 # 4: xent
 # 3: MultiVarLabel
 # 2: 1 Train
@@ -120,4 +121,4 @@ for i in tqdm(range(NUM_CLASSES_VIS)):
     im_seed = upsample(ch.clamp(im_seed, min=0, max=1)).cuda()
     _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
     images.append(im_gen)
-    torchvision.utils.save_image(ch.cat(images), f'desktop/comp{GLOBAL_MODE}.png')
+torchvision.utils.save_image(ch.cat(images), f'desktop/comp{GLOBAL_MODE}.png')
