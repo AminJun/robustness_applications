@@ -77,9 +77,9 @@ class FirstOutputWrapper(ch.nn.Module):
         return self.m(x)[0]
 
 
-cached_data = CachedData('.', )
+cached_data = CachedData('.', GLOBAL_MODE)
 cached_data.cache(model, train_loader, test_loader)
-label = cached_data()
+label = cached_data().cuda()
 print(label)
 
 
