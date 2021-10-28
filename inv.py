@@ -8,6 +8,13 @@ from robustness.tools.label_maps import CLASS_DICT
 from soft_cross_entorpy import SoftCrossEntropy
 from user_constants import DATA_PATH_DICT
 
+GLOBAL_MODE = 4
+# 4: xent
+# 3: MultiVarLabel
+# 2: 1 Train
+# 1: 1 Eval
+# 0: Mean(Eval)
+
 # Constants
 DATA = 'RestrictedImageNet'
 BATCH_SIZE = 10
@@ -66,7 +73,7 @@ def get_loss(mode: int):
 
 
 kwargs = {
-    'custom_loss': get_loss(4),
+    'custom_loss': get_loss(GLOBAL_MODE),
     'constraint': '2',
     'eps': 40,
     'step_size': 1,
