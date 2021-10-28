@@ -1,51 +1,39 @@
 from torch.distributions import MultivariateNormal
 from tqdm import tqdm
 from torch.utils import model_zoo
-import pdb
+from .base import SoftLabelData, SoftCrossEntropy
 
-from torch import nn
 import torch
 
 
-class DistSampler:
-    def __init__(self):
+class ImageNet1000NatData(SoftLabelData):
+    _device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+    def __init__(self, mode: int = -1):
+        super().__init__(n_classes=1000, mode=mode)
+
+    def get_1_eval(self) -> torch.tensor:
+        url = 'https://github.com/AminJun/SoftXent/releases/download/Create/e1.pt'
+        return model_zoo.load_url(url, map_location='cpu').to(self._device)
+
+    def get_1_train(self) -> torch.tensor:
+        url = 'https://github.com/AminJun/SoftXent/releases/download/Create/t2.pt'
+        return model_zoo.load_url(url, map_location='cpu').to(self._device)
+
+    def get_mean(self) -> torch.tensor:
+        url = 'https://github.com/AminJun/SoftXent/releases/download/Create/mean_prob.pt'
+        return model_zoo.load_url(url, map_location='cpu').to(self._device)
+
+    def get_dist(self) -> torch.tensor:
         url1 = 'https://github.com/AminJun/SoftXent/releases/download/Create/mean_prob.pt'
         url2 = 'https://github.com/AminJun/SoftXent/releases/download/Create/cov.pt'
-        self.mean_tensor = model_zoo.load_url(url1, map_location='cpu').cuda().double()
-        self.cov_tensor = model_zoo.load_url(url2, map_location='cpu').cuda().double()
-        import pdb
-        pdb.set_trace()
-        self.samples = [MultivariateNormal(self.mean_tensor[i], covariance_matrix=self.cov_tensor).sample() for i in
-                        tqdm(range(1000))]
-
-    def __call__(self, target: int):
-        return self.samples[target]
+        mean = model_zoo.load_url(url1, map_location='cpu').to(self._device).double()
+        cov = model_zoo.load_url(url2, map_location='cpu').to(self._device).double()
+        out = torch.cat([MultivariateNormal(mean[i], covariance_matrix=cov).sample() for i in tqdm(range(self.n))])
+        return out.to(self._device)
 
 
-class SoftCrossEntropy(nn.Module):
-    def __init__(self, mode: int = 1, coef: float = 1.):
-        super().__init__()
-        self.log_soft_max = nn.LogSoftmax(dim=1)
-        self.coef = coef
-        if mode != 3:
-            self.load_means(pretrained=True, mode=mode)
-        else:
-            self.load_cov()
-
-    def load_cov(self):
-        sampler = DistSampler()
-        self.label = torch.stack([sampler(i) for i in range(1000)])
-
-    def load_means(self, checkpoint: str = None, pretrained: bool = True, mode: int = 1):
-        if pretrained:
-            url = ['https://github.com/AminJun/SoftXent/releases/download/Create/mean_prob.pt',
-                   'https://github.com/AminJun/SoftXent/releases/download/Create/e1.pt',
-                   'https://github.com/AminJun/SoftXent/releases/download/Create/t2.pt', ][mode]
-            self.label = model_zoo.load_url(url, map_location='cpu').cuda()
-        elif checkpoint is not None:
-            self.label = torch.load(checkpoint).cuda()
-
-    def forward(self, prediction: torch.tensor, target: torch.tensor) -> torch.tensor:
-        if self.label is not None:
-            target = self.label[target]
-        return - torch.sum(target * self.log_soft_max(prediction), dim=1).mean() * self.coef
+class SoftXentIN1000(SoftCrossEntropy):
+    def __init__(self, mode: int = 4, coef: float = 1.0):
+        data = ImageNet1000NatData(mode=mode)
+        super().__init__(label=data(), coef=coef)

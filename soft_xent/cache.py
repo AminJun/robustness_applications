@@ -1,43 +1,62 @@
-import torch
+import os
+import sys
+
 from torch import nn
-from torch.distributions import MultivariateNormal
-from tqdm import tqdm
+from torch.utils.data import DataLoader
 import torch
+from .base import SoftLabelData
+import pdb
 
 
-class DistSampler:
-    def __init__(self, cov: torch.tensor, mean: torch.tensor):
-        self.samples = [MultivariateNormal(self.mean[i], covariance_matrix=self.cov_tensor).sample() for i in
-                        tqdm(range(1000))]
+class CachedData(SoftLabelData):
+    _device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    def __call__(self, target: int):
-        return self.samples[target]
+    def _run_or_load(self, callable_func, *args, **kwargs):
+        name = f'{callable_func.__name__}.pt'
+        par = os.path.join(self._path, 'checkpoints', 'auto_save')
+        os.makedirs(par, exist_ok=True)
+        path = os.path.join(par, name)
+        if os.path.exists(path):
+            print(f'{path} exists! Loading', file=sys.stderr)
+            return torch.load(path)
+        print(f'{path} not exists! Running', file=sys.stderr)
+        result = callable_func(*args, **kwargs)
+        torch.save(result, path)
+        print(f'{path} Saved!')
+        return result
 
+    def __init__(self, cache_path: str, mode: int = -1):
+        super().__init__(-1, mode=mode)
+        self._path = cache_path
 
-class SoftCrossEntropy(nn.Module):
-    def __init__(self, mode: int = 1, coef: float = 1.):
-        super().__init__()
-        self.log_soft_max = nn.LogSoftmax(dim=1)
-        self.coef = coef
-        if mode != 3:
-            self.load_means(pretrained=True, mode=mode)
-        else:
-            self.load_cov()
+    def cache(self, model: nn.Module, train: DataLoader, eval: DataLoader):
+        t_x, t_y = self._run_or_load(self.cache_train, model=model, train=train)
+        e_x, e_y = self._run_or_load(self.cache_eval, model=model, eval=eval)
+        pdb.set_trace()
 
-    def load_cov(self):
-        sampler = DistSampler()
-        self.label = torch.stack([sampler(i) for i in range(1000)])
+    def cache_train(self, model: nn.Module, train: DataLoader) -> (torch.tensor, torch.tensor):
+        return self.cache_loader(model, train)
 
-    def load_means(self, checkpoint: str = None, pretrained: bool = True, mode: int = 1):
-        if pretrained:
-            url = ['https://github.com/AminJun/SoftXent/releases/download/Create/mean_prob.pt',
-                   'https://github.com/AminJun/SoftXent/releases/download/Create/e1.pt',
-                   'https://github.com/AminJun/SoftXent/releases/download/Create/t2.pt', ][mode]
-            self.label = model_zoo.load_url(url, map_location='cpu').cuda()
-        elif checkpoint is not None:
-            self.label = torch.load(checkpoint).cuda()
+    def cache_eval(self, model: nn.Module, eval: DataLoader) -> (torch.tensor, torch.tensor):
+        return self.cache_loader(model, eval)
 
-    def forward(self, prediction: torch.tensor, target: torch.tensor) -> torch.tensor:
-        if self.label is not None:
-            target = self.label[target]
-        return - torch.sum(target * self.log_soft_max(prediction), dim=1).mean() * self.coef
+    def cache_loader(self, model: nn.Module, loader: DataLoader) -> (torch.tensor, torch.tensor):
+        images, labels = [], []
+        for x, y in loader:
+            x = x.to(self._device)
+            y = y.to(self._device)
+            images.append(model(x))
+            labels.append(y)
+        return torch.cat(images).cpu(), torch.cat(labels).cpu()
+
+    def get_1_eval(self) -> torch.tensor:
+        pass
+
+    def get_1_train(self) -> torch.tensor:
+        pass
+
+    def get_mean(self) -> torch.tensor:
+        pass
+
+    def get_dist(self) -> torch.tensor:
+        pass

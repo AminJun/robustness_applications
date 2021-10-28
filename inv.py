@@ -5,7 +5,7 @@ from dist import ImageNetMultiVariate
 from robustness import model_utils, datasets
 from robustness.tools.vis_tools import show_image_row
 from robustness.tools.label_maps import CLASS_DICT
-from soft_xent.imagenet1000 import SoftCrossEntropy
+from soft_xent.base import SoftCrossEntropy
 from user_constants import DATA_PATH_DICT
 
 GLOBAL_MODE = 4
