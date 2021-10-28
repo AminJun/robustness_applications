@@ -45,7 +45,6 @@ class CachedData(SoftLabelData):
         self.one_e = self._run_or_load(self.cache_one_test, predictions=e_x, targets=e_y)
         self.mean_t = self._run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y)
         self.mean_e = self._run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
-        self.dist_e = self._run_or_load(self.cache_dist_t)
         self.cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y)
 
     @torch.no_grad()
