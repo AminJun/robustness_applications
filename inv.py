@@ -85,7 +85,7 @@ def get_loss(mode: int):
         if mode is 4:
             loss = ch.nn.CrossEntropyLoss(reduction='none')(op, targ)
         else:
-            loss = SoftCrossEntropy(label)(op, targ)
+            loss = SoftCrossEntropy(label, reduction='none')(op, targ)
         return loss, None
 
     return generation_loss
