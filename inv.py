@@ -96,4 +96,4 @@ for i in tqdm(range(NUM_CLASSES_VIS)):
     im_seed = upsample(ch.clamp(im_seed, min=0, max=1)).cuda()
     _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
     images.append(im_gen)
-torchvision.utils.save_image(ch.cat(images), 'desktop/gen_all.png')
+torchvision.utils.save_image(ch.cat(images), f'desktop/gen{GLOBAL_MODE}.png')
