@@ -50,11 +50,11 @@ class CachedData(SoftLabelData):
 
     @torch.no_grad()
     def cache_one_train(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return torch.cat([predictions[targets == i][0] for i in range(self.n)])
+        return torch.stack([predictions[targets == i][0] for i in range(self.n)])
 
     @torch.no_grad()
     def cache_one_test(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return torch.cat([predictions[targets == i][0] for i in range(self.n)])
+        return torch.stack([predictions[targets == i][0] for i in range(self.n)])
 
     @torch.no_grad()
     def cache_mean_t(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
@@ -66,7 +66,7 @@ class CachedData(SoftLabelData):
 
     @torch.no_grad()
     def cache_mean(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return torch.cat([predictions[targets == i].mean(dim=0) for i in range(self.n)])
+        return torch.stack([predictions[targets == i].mean(dim=0) for i in range(self.n)])
 
     @torch.no_grad()
     def cache_train(self, model: nn.Module, train: DataLoader) -> (torch.tensor, torch.tensor):
