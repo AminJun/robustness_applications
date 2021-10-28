@@ -1,26 +1,21 @@
-from torch.distributions import MultivariateNormal
-from tqdm import tqdm 
-from torch.utils import model_zoo
-import pdb
-
+import torch
 from torch import nn
+from torch.distributions import MultivariateNormal
+from tqdm import tqdm
 import torch
 
 
 class DistSampler:
-    def __init__(self):
-        url1 = 'https://github.com/AminJun/SoftXent/releases/download/Create/mean_prob.pt'
-        url2 = 'https://github.com/AminJun/SoftXent/releases/download/Create/cov.pt'
-        self.mean_tensor = model_zoo.load_url(url1, map_location='cpu').cuda().double()
-        self.cov_tensor = model_zoo.load_url(url2, map_location='cpu').cuda().double()
-        self.samples = [MultivariateNormal(self.mean_tensor[i], covariance_matrix=self.cov_tensor).sample() for i in tqdm(range(1000))]
+    def __init__(self, cov: torch.tensor, mean: torch.tensor):
+        self.samples = [MultivariateNormal(self.mean[i], covariance_matrix=self.cov_tensor).sample() for i in
+                        tqdm(range(1000))]
 
     def __call__(self, target: int):
         return self.samples[target]
 
 
 class SoftCrossEntropy(nn.Module):
-    def __init__(self, n_class: int = 1000, mode: int = 1, coef:float=1.):
+    def __init__(self, mode: int = 1, coef: float = 1.):
         super().__init__()
         self.log_soft_max = nn.LogSoftmax(dim=1)
         self.coef = coef
@@ -46,18 +41,3 @@ class SoftCrossEntropy(nn.Module):
         if self.label is not None:
             target = self.label[target]
         return - torch.sum(target * self.log_soft_max(prediction), dim=1).mean() * self.coef
-
-
-def main():
-    pred = torch.load('checkpoints/xs.pt').cuda()
-    labels = torch.load('checkpoints/ys.pt').cuda()
-    loss2 = nn.CrossEntropyLoss()
-    l2 = loss2(pred, labels)
-    for i in range(4):
-        loss1 = SoftCrossEntropy(mode=i).cuda()
-        l1 = loss1(pred, labels)
-        print(l1.item(), l2.item())
-
-
-if __name__ == '__main__':
-    main()
