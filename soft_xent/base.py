@@ -43,13 +43,17 @@ class SoftLabelData:
 class SoftCrossEntropy(nn.Module):
     _device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    def __init__(self, label: torch.tensor, coef: float = 1.):
+    def __init__(self, label: torch.tensor, coef: float = 1., reduction: str = 'mean'):
         super().__init__()
         self.log_soft_max = nn.LogSoftmax(dim=1)
         self.coef = coef
         self.label = label
+        self.reduction = reduction
 
     def forward(self, prediction: torch.tensor, target: torch.tensor) -> torch.tensor:
         import pdb; pdb.set_trace()
         target = self.label[target]
-        return - torch.sum(target * self.log_soft_max(prediction), dim=1).mean() * self.coef
+        loss = -torch.sum(target * self.log_soft_max(prediction)) * self.coef
+        if self.reduction is 'mean':
+            loss = loss.mean()
+        return loss
