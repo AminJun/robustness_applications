@@ -33,7 +33,6 @@ class CachedData(SoftLabelData):
     def cache(self, model: nn.Module, train: DataLoader, eval: DataLoader):
         t_x, t_y = self._run_or_load(self.cache_train, model=model, train=train)
         e_x, e_y = self._run_or_load(self.cache_eval, model=model, eval=eval)
-        pdb.set_trace()
 
     @torch.no_grad()
     def cache_train(self, model: nn.Module, train: DataLoader) -> (torch.tensor, torch.tensor):
@@ -49,7 +48,6 @@ class CachedData(SoftLabelData):
         for x, y in loader:
             x = x.to(self._device)
             y = y.to(self._device)
-            pdb.set_trace()
             images.append(model(x).detach().clone())
             labels.append(y.detach().clone())
         return torch.cat(images).cpu(), torch.cat(labels).cpu()
