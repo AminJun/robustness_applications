@@ -59,7 +59,22 @@ img_seed = ch.stack([conditionals[i].sample().view(3, DATA_SHAPE // GRAIN, DATA_
 img_seed = ch.clamp(img_seed, min=0, max=1)
 show_image_row([img_seed.cpu()], tlist=[[f'Class {i}' for i in range(NUM_CLASSES_VIS)]])
 
-cached_data = CachedData('.', GLOBAL_MODE)
+train_loader, test_loader = dataset.make_loaders(workers=NUM_WORKERS,
+                                                 batch_size=BATCH_SIZE,
+                                                 data_aug=False)
+
+
+class FirstOutputWrapper(ch.nn.Module):
+    def __init__(self, model: ch.nn.Module):
+        super().__init__()
+        self.m = model
+
+    def forward(self, x) -> ch.tensor:
+        return self.m(x)[0]
+
+
+cached_data = CachedData('.', )
+cached_data.cache(FirstOutputWrapper(model), train_loader, test_loader)
 label = cached_data()
 print(label)
 
