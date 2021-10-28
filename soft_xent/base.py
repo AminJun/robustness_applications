@@ -50,5 +50,6 @@ class SoftCrossEntropy(nn.Module):
         self.label = label
 
     def forward(self, prediction: torch.tensor, target: torch.tensor) -> torch.tensor:
+        import pdb; pdb.set_trace()
         target = self.label[target]
         return - torch.sum(target * self.log_soft_max(prediction), dim=1).mean() * self.coef

@@ -1,4 +1,5 @@
 import torchvision
+import pdb
 import torch as ch
 from tqdm import tqdm
 from dist import ImageNetMultiVariate
@@ -8,7 +9,7 @@ from robustness.tools.label_maps import CLASS_DICT
 from soft_xent import SoftCrossEntropy, CachedData
 from user_constants import DATA_PATH_DICT
 
-GLOBAL_MODE = 3
+GLOBAL_MODE = 0
 # 4: xent
 # 3: MultiVarLabel
 # 2: 1 Train
@@ -74,7 +75,7 @@ class FirstOutputWrapper(ch.nn.Module):
 
 
 cached_data = CachedData('.', )
-cached_data.cache(FirstOutputWrapper(model), train_loader, test_loader)
+cached_data.cache(model, train_loader, test_loader)
 label = cached_data()
 print(label)
 
