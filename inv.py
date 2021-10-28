@@ -1,5 +1,5 @@
 import os
-import pdb
+import torchvision
 
 import sys
 import torch as ch
@@ -46,6 +46,7 @@ model_kwargs = {
 
 model, _ = model_utils.make_and_restore_model(**model_kwargs)
 model.eval()
+# model = model.cuda()
 
 
 # def downsample(x, step=GRAIN):
@@ -84,7 +85,6 @@ def upsample(x, step=GRAIN):
 #     imc = im_test[targ_test == i]
 #     print('In %s \t Downsample'% ( time.time() - cur_time), flush=True)
 #     cur_time = time.time()
-#     pdb.set_trace()
 #     down_flat = downsample(imc).view(len(imc), -1)
 #     print('In %s \t Comp Mean'% ( time.time() - cur_time), flush=True)
 #     cur_time = time.time()
@@ -139,29 +139,14 @@ if DATA == 'CIFAR':
     kwargs['iterations'] = 60
 
 show_seed = False
-for i in range(NUM_CLASSES_VIS):
-    target_class = i * ch.ones((BATCH_SIZE,))
+images = []
+for i in tqdm(range(NUM_CLASSES_VIS)):
+    target_class = i * ch.ones((BATCH_SIZE,)).cuda()
     im_seed = ch.stack([conditionals[int(t)].sample().view(3, DATA_SHAPE // GRAIN, DATA_SHAPE // GRAIN)
                         for t in target_class])
 
-    im_seed = upsample(ch.clamp(im_seed, min=0, max=1))
+    im_seed = upsample(ch.clamp(im_seed, min=0, max=1)).cuda()
     _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
-    if show_seed:
-        show_image_row([im_seed.cpu()], [f'Seed ($x_0$)'], fontsize=18)
-    show_image_row([im_gen.detach().cpu()],
-                   [CLASSES[int(t)].split(',')[0] for t in target_class],
-                   fontsize=18)
-
-show_seed = False
-for i in range(5):
-    target_class = ch.tensor(np.random.choice(range(NUM_CLASSES_VIS), (BATCH_SIZE,)))
-    im_seed = ch.stack([conditionals[int(t)].sample().view(3, DATA_SHAPE // GRAIN, DATA_SHAPE // GRAIN)
-                        for t in target_class])
-
-    im_seed = upsample(ch.clamp(im_seed, min=0, max=1))
-    _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
-    if show_seed:
-        show_image_row([im_seed.cpu()], [f'Seed ($x_0$)'], fontsize=18)
-    show_image_row([im_gen.detach().cpu()],
-                   tlist=[[CLASSES[int(t)].split(',')[0] for t in target_class]],
-                   fontsize=18)
+    images.append(im_gen)
+    # torchvision.utils.save_image(im_gen, f'gen{i}.png')
+torchvision.utils.save_image(ch.cat(images), 'desktop/gen_all.png')
