@@ -46,10 +46,15 @@ class CachedData(SoftLabelData):
         self.mean_t = self._run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y)
         self.mean_e = self._run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
         self.cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
+        self.cov_e = self._run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e)
         pdb.set_trace()
 
     @torch.no_grad()
     def cache_dist_t(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
+        return self.cache_dist(p, t, m)
+
+    @torch.no_grad()
+    def cache_dist_e(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
         return self.cache_dist(p, t, m)
 
     @torch.no_grad()
