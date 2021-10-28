@@ -12,7 +12,6 @@ cached_data.cache(None, None, None)
 label = cached_data().cuda()
 print(label)
 
-
 animals = ['dog', 'cat', 'frog', 'turtle', 'bird', 'primate', 'fish', 'crab', 'insect']
 harvest = label.cpu().numpy()
 
@@ -33,7 +32,7 @@ plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
 # Loop over data dimensions and create text annotations.
 for i in range(len(animals)):
     for j in range(len(animals)):
-        text = ax.text(j, i, harvest[i, j],
+        text = ax.text(j, i, round(harvest[i, j], 1),
                        ha="center", va="center", color="w")
 
 ax.set_title("Harvest of local farmers (in tons/year)")
