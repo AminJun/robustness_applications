@@ -66,6 +66,8 @@ class CachedData(SoftLabelData):
 
     @torch.no_grad()
     def cache_mean(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
+        sm = torch.nn.Softmax()
+        predictions = sm(predictions)
         return torch.stack([predictions[targets == i].mean(dim=0) for i in range(self.n)])
 
     @torch.no_grad()
