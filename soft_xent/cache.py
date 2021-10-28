@@ -2,6 +2,7 @@ import os
 import sys
 
 from torch import nn
+from torch.distributions import MultivariateNormal
 from torch.utils.data import DataLoader
 import torch
 from tqdm import tqdm
@@ -30,6 +31,7 @@ class CachedData(SoftLabelData):
     def __init__(self, cache_path: str, mode: int = -1):
         super().__init__(-1, mode=mode)
         self._path = cache_path
+        self.one_t = self.one_e = self.mean_t = self.mean_e = None
 
     @torch.no_grad()
     def cache(self, model: nn.Module, train: DataLoader, test: DataLoader):
@@ -45,9 +47,24 @@ class CachedData(SoftLabelData):
         self.one_e = self._run_or_load(self.cache_one_test, predictions=e_x, targets=e_y)
         self.mean_t = self._run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y)
         self.mean_e = self._run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
-        self.cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
-        self.cov_e = self._run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e)
+        cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
+        cov_e = self._run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e)
+        self.samp_t = self._run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=cov_t)
         pdb.set_trace()
+        self.samp_e = self._run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=cov_e)
+
+    @torch.no_grad()
+    def cache_sampled_t(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
+        return self.cache_sampled(cov, mean)
+
+    @torch.no_grad()
+    def cache_sampled_e(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
+        return self.cache_sampled(cov, mean)
+
+    @torch.no_grad()
+    def cache_sampled(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
+        dists = [MultivariateNormal(m, covariance_matrix=c) for m, c in zip(mean, cov)]
+        return torch.stack([dists[i].sample() for i in range(self.n)])
 
     @torch.no_grad()
     def cache_dist_t(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
