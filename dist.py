@@ -1,6 +1,7 @@
 import torch
 from torch.distributions import MultivariateNormal
 from torch.utils import model_zoo
+from tqdm import tqdm
 
 
 class ImageNetMultiVariate:
@@ -13,7 +14,7 @@ class ImageNetMultiVariate:
                      for i in range(self._n_classes)]
         self.covs = [model_zoo.load_url(self._url.format(mean_vs_cov='cov', no=i), map_location='cpu').to(self._device)
                      for i in range(self._n_classes)]
-        self.dist = [MultivariateNormal(mean, covariance_matrix=cov) for mean, cov in zip(self.mean, self.covs)]
+        self.dist = [MultivariateNormal(mean, covariance_matrix=cov) for mean, cov in tqdm(zip(self.mean, self.covs))]
 
     def __getitem__(self, item: int) -> MultivariateNormal:
         return self.dist[item]
