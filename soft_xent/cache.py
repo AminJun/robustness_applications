@@ -49,6 +49,7 @@ class CachedData(SoftLabelData):
         for x, y in loader:
             x = x.to(self._device)
             y = y.to(self._device)
+            pdb.set_trace()
             images.append(model(x).detach().clone())
             labels.append(y.detach().clone())
         return torch.cat(images).cpu(), torch.cat(labels).cpu()
