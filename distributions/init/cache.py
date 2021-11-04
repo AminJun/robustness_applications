@@ -44,7 +44,7 @@ class CachedInits(CacheLocal):
         mean = xs.mean(dim=0)
         xs = xs - mean.unsqueeze(dim=0)
         cov = xs.t() @ xs / len(xs)
-        cov = cov + 1e-4 * torch.eye(len(cov))
+        cov = cov + 1e-4 * torch.eye(len(cov)).to(self._device)
         return mean, cov, u_size
 
     @torch.no_grad()
