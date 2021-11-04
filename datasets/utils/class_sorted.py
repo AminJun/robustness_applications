@@ -41,8 +41,10 @@ class ClassSortedFactory:
     def binary_search_cache(dataset: Dataset):
         _, n_classes = dataset[len(dataset) - 1]
         n_classes = n_classes + 1
-        return {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k)) for k in
-                tqdm(range(n_classes))}
+        out = {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k)) for k in
+               tqdm(range(990, n_classes))}
+        pdb.set_trace()
+        return out
 
     @staticmethod
     def _get_label(dataset: Dataset, i: int) -> int:
@@ -69,13 +71,14 @@ class ClassSortedFactory:
             else:
                 e = m
 
-        _, y = dataset[f]
-        if y != label:
-            pdb.set_trace()
-        assert y == label
-        if f > 0:
-            _, y = dataset[f - 1]
-            assert y != label
+        if f < len(dataset):
+            _, y = dataset[f]
+            if y != label:
+                pdb.set_trace()
+            assert y == label
+            if f > 0:
+                _, y = dataset[f - 1]
+                assert y != label
         return f
 
     @staticmethod
