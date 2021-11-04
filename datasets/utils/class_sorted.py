@@ -53,7 +53,7 @@ class ClassSortedFactory:
         while f < e - 1:
             m = (f + e) // 2
             _, y = dataset[m]
-            if y < label:
+            if y <= label:
                 f = m
             else:
                 e = m
