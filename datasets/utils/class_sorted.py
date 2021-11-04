@@ -53,7 +53,7 @@ class ClassSortedFactory:
     @staticmethod
     def _lb(dataset: Dataset, label: int):
         f, e = 0, len(dataset)
-        while f < e:
+        while f < e - 1:
             m = (f + e) // 2
             print(f'B {f} {m} {e}')
             _, y = dataset[m]
@@ -71,6 +71,9 @@ class ClassSortedFactory:
             else:
                 e = m
             print(f'A {f} {m} {e}\n')
+
+        if dataset[f][1] != label:
+            f += 1
 
         if f < len(dataset):
             _, y = dataset[f]
