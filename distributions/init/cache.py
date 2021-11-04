@@ -39,8 +39,8 @@ class CachedInits(CacheLocal):
                 xs.append(self.down(x.to(self._device)[indices]).clone().detach())
             if len(xs) > 0:
                 break
-        pdb.set_trace()
-        xs = torch.cat(xs).view(len(xs), -1)
+        xs = torch.cat(xs)
+        xs = xs.view(len(xs), -1)
         mean = xs.mean(dim=0)
         xs = xs - mean.unsqueeze(dim=0)
         cov = xs.t() @ xs / len(xs)
