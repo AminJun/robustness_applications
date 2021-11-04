@@ -52,7 +52,7 @@ class ClassSortedFactory:
         f, e = 0, len(dataset)
         while f < e - 1:
             m = (f + e) // 2
-            _, y = ClassSortedFactory._get_label(dataset, m)
+            _, y = dataset[m]
             if y < label:
                 f = m
             else:
