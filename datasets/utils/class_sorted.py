@@ -1,5 +1,6 @@
 import pdb
 
+import torch
 from torch.utils import model_zoo
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
@@ -11,12 +12,16 @@ class ClassSortedFactory:
     def __init__(self, other: EasyDataset, train: bool, download: bool = False):
         self.other = other
         self.indices = {}
-        name = f'{other.__class__.__name__}_{"eval" if not train else "eval"}'
-        url = f'https://github.com/AminJun/PublicModels/releases/download/main/{name}.pt'
+        self.name = f'{other.__class__.__name__}_{"eval" if not train else "eval"}'
+        url = f'https://github.com/AminJun/PublicModels/releases/download/main/{self.name}.pt'
         if download:
             self.indices = model_zoo.load_url(url, map_location='cpu')
         else:
             self.indices = self.cache(other.train() if train else other.eval())
+            self.save()
+
+    def save(self):
+        torch.save(self.indices, self.name)
 
     @staticmethod
     def cache(dataset: Dataset, batch_size: int = 100) -> {}:
