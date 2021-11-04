@@ -34,7 +34,9 @@ class CachedInits(CacheLocal):
             if self.down is None:
                 u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
                 self.down = torch.nn.Upsample(size=(d_size, d_size), mode='bilinear', align_corners=False)
-            xs.append(self.down(x.to(self._device)[y.to(self._device) == label]).clone().detach())
+            indices = y.to(self._device) == label
+            if indices.sum() != 0:
+                xs.append(self.down(x.to(self._device)[indices]).clone().detach())
             if len(xs) != 0:
                 break
         pdb.set_trace()
