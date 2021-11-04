@@ -10,7 +10,7 @@ from distributions import CachedInits
 def main():
     arc = model_library[33]
     model, image_size, batch_size, name = arc()
-    loader = DataLoader(image_net.eval(), batch_size, shuffle=False)
+    loader = DataLoader(image_net.eval(), batch_size * 10, shuffle=False)
     inits = CachedInits('.', down_rate=4)
 
     classes = [10, 200, 980, 970, 37, 119, 281, 449]

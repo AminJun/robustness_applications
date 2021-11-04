@@ -16,19 +16,20 @@ class ClassSortedFactory:
         if download:
             self.indices = model_zoo.load_url(url, map_location='cpu')
         else:
-            self.indices = self.cache(other.eval() if train else other.train())
+            self.indices = self.cache(other.train() if train else other.eval())
 
     @staticmethod
-    def cache(dataset: Dataset, batch_size: int = 1000) -> {}:
+    def cache(dataset: Dataset, batch_size: int = 100) -> {}:
         out = {}
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4)
         for ii, (_, yy) in enumerate(tqdm(loader)):
             for i, y in enumerate(yy):
+                y = y.item()
                 if y not in out.keys():
                     out[y] = []
                 out[y].append(i + ii * batch_size)
-                if len(out) > 10:
-                    break
+            if len(out) > 10:
+                break
         pdb.set_trace()
         return out
 
