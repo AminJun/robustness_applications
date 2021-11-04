@@ -20,9 +20,15 @@ class ClassSortedFactory:
             data = other.train() if train else other.eval()
             # self.indices = self.cache(data)
             self.indices = self.binary_search_cache(data)
+            every = [self.unzip(self.indices[i]) for i in tqdm(range(1000))]
+            every = [j for li in every for j in li]
+            assert len(every) == data
+            for j in tqdm(range(len(data))):
+                assert j in every
             self.save()
 
     def save(self):
+
         torch.save(self.indices, self.name)
 
     @staticmethod
@@ -43,12 +49,7 @@ class ClassSortedFactory:
         n_classes = n_classes + 1
         out = {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k)) for k in
                tqdm(range(998, n_classes))}
-        pdb.set_trace()
         return out
-
-    @staticmethod
-    def _get_label(dataset: Dataset, i: int) -> int:
-        return dataset[i][1].item()
 
     @staticmethod
     def _lb(dataset: Dataset, label: int):
