@@ -54,10 +54,21 @@ class ClassSortedFactory:
         while f < e - 1:
             m = (f + e) // 2
             _, y = dataset[m]
-            if y <= label:
+            if y < label:
                 f = m
+            elif y == label:
+                if m == 0:
+                    f = m
+                    break
+                else:
+                    if dataset[m - 1][1] == label:
+                        e = m
+                    else:
+                        f = m
+                        break
             else:
                 e = m
+
         _, y = dataset[f]
         if y != label:
             pdb.set_trace()
