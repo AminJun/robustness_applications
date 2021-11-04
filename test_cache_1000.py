@@ -1,21 +1,21 @@
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 import torchvision as tv
 
-from datasets import image_net
+from datasets import image_net, ClassSortedFactory
 from model import model_library
 from distributions import CachedInits
 
 
 def main():
-    arc = model_library[33]
-    model, image_size, batch_size, name = arc()
-    loader = DataLoader(image_net.eval(), batch_size * 10, shuffle=False)
+    # arc = model_library[33]
+    # model, image_size, batch_size, name = arc()
+
     inits = CachedInits('.', down_rate=4)
 
     classes = [10, 200, 980, 970, 37, 119, 281, 449]
     for c in classes:
-        inits.cache(loader, c)
+        inits.cache(image_net, c)
     samples = []
     for _ in range(4):
         for c in classes:

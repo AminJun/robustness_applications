@@ -1,8 +1,11 @@
 import pdb
 
 from torch.distributions import MultivariateNormal
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from tqdm import tqdm
+
+from datasets import ClassSortedFactory
+from datasets.utils.base import EasyDataset
 from ..cache import CacheLocal
 import torch
 
@@ -21,15 +24,17 @@ class CachedInits(CacheLocal):
         self.down = self.up = None
 
     @torch.no_grad()
-    def cache(self, loader: DataLoader, label: int):
-        cached = self.run_or_load(self.cache_cov, loader=loader, index=label, label=label)
+    def cache(self, easy: EasyDataset, label: int):
+        cached = self.run_or_load(self.cache_cov, easy=easy, index=label, label=label)
         self.mean[label], self.cov[label], self.image_size = cached
         self.sample[label] = self.run_or_load(self.cache_sample, index=label, label=label)
 
     @torch.no_grad()
-    def cache_cov(self, loader: DataLoader, label: int) -> (torch.tensor, torch.tensor, int):
+    def cache_cov(self, easy: EasyDataset, label: int) -> (torch.tensor, torch.tensor, int):
         xs = []
         u_size = 0
+        factory = ClassSortedFactory(easy, False, True)
+        loader = DataLoader(Subset(easy.eval(), factory(label)))
         for x, y in tqdm(loader):
             if self.down is None:
                 u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
@@ -37,8 +42,6 @@ class CachedInits(CacheLocal):
             indices = y.to(self._device) == label
             if indices.sum() != 0:
                 xs.append(self.down(x.to(self._device)[indices]).clone().detach())
-            if len(xs) > 0:
-                break
         xs = torch.cat(xs)
         xs = xs.view(len(xs), -1)
         mean = xs.mean(dim=0)
