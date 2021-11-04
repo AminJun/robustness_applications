@@ -1,7 +1,7 @@
 import pdb
 
 from torch.utils import model_zoo
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 
 from .base import EasyDataset
@@ -19,14 +19,16 @@ class ClassSortedFactory:
             self.indices = self.cache(other.eval() if train else other.train())
 
     @staticmethod
-    def cache(dataset: Dataset) -> {}:
+    def cache(dataset: Dataset, batch_size: int = 1000) -> {}:
         out = {}
-        for i, (_, y) in enumerate(tqdm(dataset)):
-            if y not in out.keys():
-                out[y] = []
-            out[y].append(i)
-            if len(out) > 10:
-                break
+        DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+        for ii, (_, yy) in enumerate(tqdm(dataset)):
+            for i, y in enumerate(yy):
+                if y not in out.keys():
+                    out[y] = []
+                out[y].append(i + ii * batch_size)
+                if len(out) > 10:
+                    break
         pdb.set_trace()
         return out
 
