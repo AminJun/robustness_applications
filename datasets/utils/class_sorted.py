@@ -28,10 +28,7 @@ class ClassSortedFactory:
                 if y not in out.keys():
                     out[y] = []
                 out[y].append(i + ii * batch_size)
-            if len(out) > 10:
-                break
-        pdb.set_trace()
-        return out
+        return {k: ClassSortedFactory.zip(v) for k, v in out.items()}
 
     @staticmethod
     def zip(indices: list) -> []:
@@ -53,3 +50,6 @@ class ClassSortedFactory:
             for i in range(s, e):
                 out.append(i)
         return out
+
+    def __call__(self, label: int) -> list:
+        return self.unzip(self.indices[label])
