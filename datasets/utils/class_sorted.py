@@ -42,7 +42,7 @@ class ClassSortedFactory:
         _, n_classes = dataset[len(dataset) - 1]
         n_classes = n_classes + 1
         out = {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k)) for k in
-               tqdm(range(990, n_classes))}
+               tqdm(range(998, n_classes))}
         pdb.set_trace()
         return out
 
@@ -55,6 +55,7 @@ class ClassSortedFactory:
         f, e = 0, len(dataset)
         while f < e - 1:
             m = (f + e) // 2
+            print(f'B {f} {m} {e}')
             _, y = dataset[m]
             if y < label:
                 f = m
@@ -62,14 +63,14 @@ class ClassSortedFactory:
                 if m == 0:
                     f = m
                     break
+                if dataset[m - 1][1] == label:
+                    e = m
                 else:
-                    if dataset[m - 1][1] == label:
-                        e = m
-                    else:
-                        f = m
-                        break
+                    f = m
+                    break
             else:
                 e = m
+            print(f'B {f} {m} {e}')
 
         if f < len(dataset):
             _, y = dataset[f]
@@ -79,6 +80,7 @@ class ClassSortedFactory:
             if f > 0:
                 _, y = dataset[f - 1]
                 assert y != label
+        print('========================')
         return f
 
     @staticmethod
