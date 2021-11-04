@@ -8,7 +8,7 @@ from distributions import CachedInits
 
 
 def main():
-    arc = model_library.search('robust')[33]
+    arc = model_library[33]
     model, image_size, batch_size, name = arc()
     loader = DataLoader(image_net.eval(), batch_size, shuffle=False)
     inits = CachedInits('.', down_rate=4)
