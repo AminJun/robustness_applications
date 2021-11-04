@@ -48,7 +48,7 @@ class ClassSortedFactory:
         _, n_classes = dataset[len(dataset) - 1]
         n_classes = n_classes + 1
         out = {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k)) for k in
-               tqdm(range(998, n_classes))}
+               tqdm(range(n_classes))}
         return out
 
     @staticmethod
