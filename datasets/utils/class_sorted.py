@@ -55,7 +55,6 @@ class ClassSortedFactory:
         f, e = 0, len(dataset)
         while f < e - 1:
             m = (f + e) // 2
-            print(f'B {f} {m} {e}')
             _, y = dataset[m]
             if y < label:
                 f = m
@@ -70,7 +69,6 @@ class ClassSortedFactory:
                     break
             else:
                 e = m
-            print(f'A {f} {m} {e}\n')
 
         if dataset[f][1] != label:
             f += 1
@@ -83,7 +81,6 @@ class ClassSortedFactory:
             if f > 0:
                 _, y = dataset[f - 1]
                 assert y != label
-        print('========================')
         return f
 
     @staticmethod
