@@ -23,6 +23,7 @@ class ClassSortedFactory:
             pdb.set_trace()
             every = [self.unzip(self.indices[i]) for i in tqdm(range(1000))]
             every = [j for li in every for j in li]
+            pdb.set_trace()
             assert len(every) == data
             for j in tqdm(range(len(data))):
                 assert j in every
