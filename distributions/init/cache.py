@@ -38,8 +38,8 @@ class CachedInits(CacheLocal):
         loader = DataLoader(Subset(easy.eval(), factory(label)), batch_size=1000, shuffle=False)
         pdb.set_trace()
         for x, y in tqdm(loader):
+            u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
             if self.down is None:
-                u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
                 self.down = torch.nn.Upsample(size=(d_size, d_size), mode='bilinear', align_corners=False)
             indices = y.to(self._device) == label
             if indices.sum() != 0:
