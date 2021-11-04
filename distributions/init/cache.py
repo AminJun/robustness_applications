@@ -37,7 +37,7 @@ class CachedInits(CacheLocal):
             indices = y.to(self._device) == label
             if indices.sum() != 0:
                 xs.append(self.down(x.to(self._device)[indices]).clone().detach())
-            if len(xs) != 0:
+            if len(xs) > 2:
                 break
         pdb.set_trace()
         xs = torch.cat(xs).view(len(xs), -1)
