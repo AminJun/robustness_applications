@@ -27,6 +27,7 @@ class CachedInits(CacheLocal):
     def cache(self, easy: EasyDataset, label: int):
         cached = self.run_or_load(self.cache_cov, easy=easy, index=label, label=label)
         self.mean[label], self.cov[label], self.image_size = cached
+        pdb.set_trace()
         self.sample[label] = self.run_or_load(self.cache_sample, index=label, label=label)
 
     @torch.no_grad()
