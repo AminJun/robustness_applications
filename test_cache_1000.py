@@ -11,7 +11,7 @@ def main():
     # arc = model_library[33]
     # model, image_size, batch_size, name = arc()
 
-    inits = CachedInits('.', down_rate=4)
+    inits = CachedInits('.', down_rate=8)
 
     classes = [10, 200, 980, 970, 37, 119, 281, 449]
     for c in classes:
@@ -23,7 +23,7 @@ def main():
     for _ in range(4):
         for c in classes:
             samples.append(inits(c, True))
-    tv.utils.save_image(torch.cat(samples), 'sampled.png', nrow=len(classes))
+    tv.utils.save_image(torch.cat(samples), 'sampled8.png', nrow=len(classes))
 
 
 if __name__ == '__main__':
