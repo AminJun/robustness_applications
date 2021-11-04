@@ -27,7 +27,6 @@ class CachedInits(CacheLocal):
     def cache(self, easy: EasyDataset, label: int):
         cached = self.run_or_load(self.cache_cov, easy=easy, index=label, label=label)
         self.mean[label], self.cov[label], self.image_size = cached
-        pdb.set_trace()
         self.sample[label] = self.run_or_load(self.cache_sample, index=label, label=label)
 
     @torch.no_grad()
@@ -36,7 +35,6 @@ class CachedInits(CacheLocal):
         u_size = 0
         factory = ClassSortedFactory(easy, False, True)
         loader = DataLoader(Subset(easy.eval(), factory(label)), batch_size=1000, shuffle=False)
-        pdb.set_trace()
         for x, y in tqdm(loader):
             u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
             if self.down is None:
@@ -45,7 +43,6 @@ class CachedInits(CacheLocal):
             if indices.sum() != 0:
                 xs.append(self.down(x.to(self._device)[indices]).clone().detach())
         xs = torch.cat(xs)
-        pdb.set_trace()
         xs = xs.view(len(xs), -1)
         mean = xs.mean(dim=0)
         xs = xs - mean.unsqueeze(dim=0)
@@ -61,7 +58,6 @@ class CachedInits(CacheLocal):
     def new_sample(self, label: int) -> torch.tensor:
         dist = MultivariateNormal(self.mean[label], covariance_matrix=self.cov[label])
         d_size = self.image_size // self.down_rate
-        pdb.set_trace()
         sample = dist.sample().view(1, 3, d_size, d_size)
         if self.up is None:
             self.up = torch.nn.Upsample(size=(d_size, d_size), mode='bilinear', align_corners=False)
