@@ -17,7 +17,9 @@ class ClassSortedFactory:
         if download:
             self.indices = model_zoo.load_url(url, map_location='cpu')
         else:
-            self.indices = self.cache(other.train() if train else other.eval())
+            data = other.train() if train else other.eval()
+            # self.indices = self.cache(data)
+            self.indices = self.binary_search_cache(data)
             self.save()
 
     def save(self):
@@ -39,7 +41,7 @@ class ClassSortedFactory:
     def binary_search_cache(dataset: Dataset):
         _, n_classes = dataset[len(dataset) - 1]
         n_classes = n_classes.item() + 1
-        out = {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._up(dataset, k)) for k in range(n_classes)}
+        return {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._up(dataset, k)) for k in range(n_classes)}
 
     @staticmethod
     def _get_label(dataset: Dataset, i: int) -> int:
