@@ -1,6 +1,6 @@
 from torchvision.datasets import VisionDataset
 
-from .tools.normalizer import Normalizer
+from .normalizer import Normalizer
 
 
 class EasyDataset:

@@ -4,7 +4,7 @@ from torch.utils import model_zoo
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
-from ..base import EasyDataset
+from .base import EasyDataset
 
 
 class ClassSortedFactory:

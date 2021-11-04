@@ -2,7 +2,7 @@ from torchvision.datasets import VisionDataset
 from torchvision import transforms as trans
 from torchvision.datasets import ImageFolder
 
-from .base import EasyDataset
+from datasets.utils.base import EasyDataset
 
 
 class ImageNet(EasyDataset):
