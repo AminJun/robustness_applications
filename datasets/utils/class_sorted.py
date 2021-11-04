@@ -70,7 +70,7 @@ class ClassSortedFactory:
                     break
             else:
                 e = m
-            print(f'B {f} {m} {e}')
+            print(f'A {f} {m} {e}\n')
 
         if f < len(dataset):
             _, y = dataset[f]
