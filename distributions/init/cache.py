@@ -60,6 +60,7 @@ class CachedInits(CacheLocal):
     def new_sample(self, label: int) -> torch.tensor:
         dist = MultivariateNormal(self.mean[label], covariance_matrix=self.cov[label])
         d_size = self.image_size // self.down_rate
+        pdb.set_trace()
         sample = dist.sample().view(1, 3, d_size, d_size)
         if self.up is None:
             self.up = torch.nn.Upsample(size=(d_size, d_size), mode='bilinear', align_corners=False)
