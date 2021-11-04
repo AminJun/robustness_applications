@@ -1,3 +1,5 @@
+import pdb
+
 from torch.distributions import MultivariateNormal
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -33,6 +35,9 @@ class CachedInits(CacheLocal):
                 u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
                 self.down = torch.nn.Upsample(size=(d_size, d_size), mode='bilinear', align_corners=False)
             xs.append(self.down(x.to(self._device)[y.to(self._device) == label]).clone().detach())
+            if len(xs) != 0:
+                break
+        pdb.set_trace()
         xs = torch.cat(xs).view(len(xs), -1)
         mean = xs.mean(dim=0)
         xs = xs - mean.unsqueeze(dim=0)
