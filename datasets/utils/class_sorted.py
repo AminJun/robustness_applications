@@ -20,12 +20,12 @@ class ClassSortedFactory:
             data = other.train() if train else other.eval()
             # self.indices = self.cache(data)
             self.indices = self.binary_search_cache(data)
-            pdb.set_trace()
             every = [self.unzip(self.indices[i]) for i in tqdm(range(1000))]
             every = [j for li in every for j in li]
-            pdb.set_trace()
             assert len(every) == data
             for j in tqdm(range(len(data))):
+                if j not in every:
+                    pdb.set_trace()
                 assert j in every
             self.save()
 
