@@ -48,7 +48,7 @@ class ClassSortedFactory:
     def binary_search_cache(dataset: Dataset):
         _, n_classes = dataset[len(dataset) - 1]
         n_classes = n_classes + 1
-        out = {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k)) for k in
+        out = {k: [(ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k))] for k in
                tqdm(range(990, n_classes))}
         return out
 
