@@ -21,13 +21,11 @@ class ClassSortedFactory:
     @staticmethod
     def cache(dataset: Dataset) -> {}:
         out = {}
-        count = 1000
         for i, (_, y) in enumerate(tqdm(dataset)):
             if y not in out.keys():
                 out[y] = []
             out[y].append(i)
-            count -= 1
-            if count == 0:
+            if len(out) > 10:
                 break
         pdb.set_trace()
         return out
