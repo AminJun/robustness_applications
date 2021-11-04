@@ -10,7 +10,8 @@ from distributions import CachedInits
 
 
 def main():
-    factory = ClassSortedFactory(image_net, False, True)
+    factory = ClassSortedFactory(image_net, True, False)
+    factory.save()
     pdb.set_trace()
 
 
