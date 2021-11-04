@@ -1,15 +1,11 @@
-import os
-import sys
 import torch as ch
 from torch.distributions.multivariate_normal import MultivariateNormal
-import numpy as np
-from tqdm import tqdm, tqdm_notebook
-import matplotlib.pyplot as plt
+from tqdm import tqdm
 from robustness import model_utils, datasets
-from robustness.tools.vis_tools import show_image_row, show_image_column
+from robustness.tools.vis_tools import show_image_row
 from robustness.tools.label_maps import CLASS_DICT
 from user_constants import DATA_PATH_DICT
-from soft_xent.cache import CachedData
+from distributions.label.cache import CachedLabels
 
 # Constants
 DATA = 'RestrictedImageNet'  # Choices: ['CIFAR', 'ImageNet', 'RestrictedImageNet']
@@ -52,7 +48,7 @@ class FirstOutputWrapper(ch.nn.Module):
         return self.m(x)[0]
 
 
-c = CachedData('.', )
+c = CachedLabels('.', )
 c.cache(FirstOutputWrapper(model), train_loader, test_loader)
 
 
@@ -61,7 +57,7 @@ def downsample(x, step=GRAIN):
 
     for i in range(0, DATA_SHAPE, step):
         for j in range(0, DATA_SHAPE, step):
-            v = x[:, :, i:i + step, j:j + step].mean(dim=2, keepdim=True).mean(dim=3, keepdim=True)
+            v = x[:, :, i:i + step, j:j + step].mean(dim=2, kxepdim=True).mean(dim=3, keepdim=True)
             ii, jj = i // step, j // step
             down[:, :, ii:ii + 1, jj:jj + 1] = v
     return down

@@ -9,34 +9,34 @@ class SoftLabelData:
         self.mode = mode
         self.n = n_classes
 
-    def __call__(self, mode: int = -1):
+    def __call__(self, mode: int = -1, force_new: bool = False):
         mode = max(mode, self.mode)
-        return self.get_labels(mode)
+        return self.get_labels(mode, force_new)
 
-    def get_labels(self, mode: int) -> torch.tensor:
+    def get_labels(self, mode: int, force_new: bool = False) -> torch.tensor:
         modes = [self.get_one_e, self.get_one_t, self.get_mean_t, self.get_mean_e,
                  self.get_dist_e, self.get_dist_t, self.one_hot]
-        return modes[mode]()
+        return modes[mode](force_new=force_new)
 
-    def get_one_e(self) -> torch.tensor:
+    def get_one_e(self, force_new: bool = False) -> torch.tensor:
         raise NotImplementedError
 
-    def get_one_t(self) -> torch.tensor:
+    def get_one_t(self, force_new: bool = False) -> torch.tensor:
         raise NotImplementedError
 
-    def get_mean_t(self) -> torch.tensor:
+    def get_mean_t(self, force_new: bool = False) -> torch.tensor:
         raise NotImplementedError
 
-    def get_mean_e(self) -> torch.tensor:
+    def get_mean_e(self, force_new: bool = False) -> torch.tensor:
         raise NotImplementedError
 
-    def get_dist_t(self) -> torch.tensor:
+    def get_dist_t(self, force_new: bool = False) -> torch.tensor:
         raise NotImplementedError
 
-    def get_dist_e(self) -> torch.tensor:
+    def get_dist_e(self, force_new: bool = False) -> torch.tensor:
         raise NotImplementedError
 
-    def one_hot(self) -> torch.tensor:
+    def one_hot(self, *args, **kwargs) -> torch.tensor:
         return torch.eye(self.n).to(self._device)
 
 

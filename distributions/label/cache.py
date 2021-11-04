@@ -1,6 +1,3 @@
-import os
-import sys
-
 from torch import nn
 from torch.distributions import MultivariateNormal
 from torch.utils.data import DataLoader
@@ -8,49 +5,36 @@ import torch
 from tqdm import tqdm
 
 from .base import SoftLabelData
-import pdb
+from ..cache import CacheLocal
 
 
-class CachedData(SoftLabelData):
+class CachedLabels(SoftLabelData, CacheLocal):
     _device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    def _run_or_load(self, callable_func, *args, **kwargs):
-        name = f'{callable_func.__name__}.pt'
-        par = os.path.join(self._path, 'checkpoints', 'auto_save', self.__class__.__name__)
-        os.makedirs(par, exist_ok=True)
-        path = os.path.join(par, name)
-        if os.path.exists(path):
-            print(f'{path} exists! Loading', file=sys.stderr)
-            return torch.load(path)
-        print(f'{path} not exists! Running', file=sys.stderr)
-        result = callable_func(*args, **kwargs)
-        torch.save(result, path)
-        print(f'{path} Saved!')
-        return result
-
     def __init__(self, cache_path: str, mode: int = -1):
-        super().__init__(-1, mode=mode)
-        self._path = cache_path
-        self.one_t = self.one_e = self.mean_t = self.mean_e = self.sample_t = self.sample_e = None
+        SoftLabelData.__init__(self, n_classes=-1, mode=mode)
+        CacheLocal.__init__(self, cache_path)
+        self.one_t = self.one_e = self.mean_t = self.mean_e = self.sample_t = None
+        self.sample_e = self.cov_e = self.cov_t = None
 
     @torch.no_grad()
     def cache(self, model: nn.Module, train: DataLoader, test: DataLoader):
-        t_x, t_y = self._run_or_load(self.cache_train, model=model, train=train)
-        e_x, e_y = self._run_or_load(self.cache_test, model=model, test=test)
+        t_x, t_y = self.run_or_load(self.cache_train, model=model, train=train)
+        e_x, e_y = self.run_or_load(self.cache_test, model=model, test=test)
 
         sm = torch.nn.Softmax()
         t_x, e_x = sm(t_x), sm(e_x)
 
         classes = t_y.unique()
         self.n = len(classes)
-        self.one_t = self._run_or_load(self.cache_one_train, predictions=t_x, targets=t_y)
-        self.one_e = self._run_or_load(self.cache_one_test, predictions=e_x, targets=e_y)
-        self.mean_t = self._run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y)
-        self.mean_e = self._run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
-        cov_t = self._run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
-        cov_e = self._run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e)
-        self.sample_t = self._run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=cov_t)
-        self.sample_e = self._run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=cov_e)
+        self.one_t = self.run_or_load(self.cache_one_train, predictions=t_x, targets=t_y)
+        self.one_e = self.run_or_load(self.cache_one_test, predictions=e_x, targets=e_y)
+        self.mean_t = self.run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y)
+        self.mean_e = self.run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
+        self.cov_t = self.run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
+        self.cov_e = self.run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e)
+        self.sample_t = self.run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=self.cov_t)
+        self.sample_e = self.run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=self.cov_e)
 
     @torch.no_grad()
     def cache_sampled_t(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
@@ -120,20 +104,32 @@ class CachedData(SoftLabelData):
             labels.append(y.detach().clone())
         return torch.cat(images).cpu(), torch.cat(labels).cpu()
 
-    def get_one_e(self) -> torch.tensor:
+    def get_one_e(self, force_new: bool = True) -> torch.tensor:
+        if force_new:
+            raise NotImplementedError
         return self.one_e
 
-    def get_one_t(self) -> torch.tensor:
+    def get_one_t(self, force_new: bool = True) -> torch.tensor:
+        if force_new:
+            raise NotImplementedError
         return self.one_t
 
-    def get_mean_t(self) -> torch.tensor:
+    def get_mean_t(self, force_new: bool = True) -> torch.tensor:
+        if force_new:
+            raise NotImplementedError
         return self.mean_t
 
-    def get_mean_e(self) -> torch.tensor:
+    def get_mean_e(self, force_new: bool = True) -> torch.tensor:
+        if force_new:
+            raise NotImplementedError
         return self.mean_e
 
-    def get_dist_t(self) -> torch.tensor:
+    def get_dist_t(self, force_new: bool = True) -> torch.tensor:
+        if force_new:
+            raise NotImplementedError
         return self.sample_t
 
-    def get_dist_e(self) -> torch.tensor:
+    def get_dist_e(self, force_new: bool = True) -> torch.tensor:
+        if force_new:
+            raise NotImplementedError
         return self.sample_e

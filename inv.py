@@ -1,14 +1,13 @@
 import os
 
 import torchvision
-import pdb
 import torch as ch
 from tqdm import tqdm
 from dist import ImageNetMultiVariate
 from robustness import model_utils, datasets
 from robustness.tools.vis_tools import show_image_row
 from robustness.tools.label_maps import CLASS_DICT
-from soft_xent import SoftCrossEntropy, CachedData
+from distributions.label import SoftCrossEntropy, CachedLabels
 import sys
 from user_constants import DATA_PATH_DICT
 
@@ -77,7 +76,7 @@ class FirstOutputWrapper(ch.nn.Module):
         return self.m(x)[0]
 
 
-cached_data = CachedData('.', GLOBAL_MODE)
+cached_data = CachedLabels('.', GLOBAL_MODE)
 cached_data.cache(model, train_loader, test_loader)
 label = cached_data().cuda()
 print(label)

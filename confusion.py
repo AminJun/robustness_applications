@@ -1,13 +1,12 @@
-from soft_xent import SoftCrossEntropy, CachedData
+from distributions.label import CachedLabels
 import sys
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 GLOBAL_MODE = int(sys.argv[1])
 
-cached_data = CachedData('.', GLOBAL_MODE)
+cached_data = CachedLabels('.', GLOBAL_MODE)
 cached_data.cache(None, None, None)
 label = cached_data().cuda()
 print(label)
