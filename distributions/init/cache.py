@@ -34,7 +34,7 @@ class CachedInits(CacheLocal):
         xs = []
         u_size = 0
         factory = ClassSortedFactory(easy, False, True)
-        loader = DataLoader(Subset(easy.eval(), factory(label)))
+        loader = DataLoader(Subset(easy.eval(), factory(label)), batch_size=1000, shuffle=False)
         for x, y in tqdm(loader):
             if self.down is None:
                 u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
