@@ -41,7 +41,7 @@ class ClassSortedFactory:
     def binary_search_cache(dataset: Dataset):
         _, n_classes = dataset[len(dataset) - 1]
         n_classes = n_classes + 1
-        return {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._up(dataset, k)) for k in range(n_classes)}
+        return {k: (ClassSortedFactory._lb(dataset, k), ClassSortedFactory._ub(dataset, k)) for k in range(n_classes)}
 
     @staticmethod
     def _get_label(dataset: Dataset, i: int) -> int:
