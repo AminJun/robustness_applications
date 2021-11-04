@@ -35,6 +35,7 @@ class CachedInits(CacheLocal):
         u_size = 0
         factory = ClassSortedFactory(easy, False, True)
         loader = DataLoader(Subset(easy.eval(), factory(label)), batch_size=1000, shuffle=False)
+        pdb.set_trace()
         for x, y in tqdm(loader):
             if self.down is None:
                 u_size, d_size = x.shape[-1], x.shape[-1] // self.down_rate
@@ -43,6 +44,7 @@ class CachedInits(CacheLocal):
             if indices.sum() != 0:
                 xs.append(self.down(x.to(self._device)[indices]).clone().detach())
         xs = torch.cat(xs)
+        pdb.set_trace()
         xs = xs.view(len(xs), -1)
         mean = xs.mean(dim=0)
         xs = xs - mean.unsqueeze(dim=0)
