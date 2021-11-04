@@ -69,13 +69,14 @@ class ClassSortedFactory:
             else:
                 e = m
 
-        _, y = dataset[f]
-        if y != label:
-            pdb.set_trace()
-        assert y == label
-        if f > 0:
-            _, y = dataset[f - 1]
-            assert y != label
+        if f < len(dataset):
+            _, y = dataset[f]
+            if y != label:
+                pdb.set_trace()
+            assert y == label
+            if f > 0:
+                _, y = dataset[f - 1]
+                assert y != label
         return f
 
     @staticmethod
