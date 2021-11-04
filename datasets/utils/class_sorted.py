@@ -21,8 +21,8 @@ class ClassSortedFactory:
     @staticmethod
     def cache(dataset: Dataset, batch_size: int = 1000) -> {}:
         out = {}
-        DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4)
-        for ii, (_, yy) in enumerate(tqdm(dataset)):
+        loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+        for ii, (_, yy) in enumerate(tqdm(loader)):
             for i, y in enumerate(yy):
                 if y not in out.keys():
                     out[y] = []
