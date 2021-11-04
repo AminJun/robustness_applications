@@ -1,8 +1,8 @@
 from torchvision.datasets import VisionDataset
-
-from datasets.base import EasyDataset
 from torchvision import transforms as trans
 from torchvision.datasets import ImageFolder
+
+from .base import EasyDataset
 
 
 class ImageNet(EasyDataset):

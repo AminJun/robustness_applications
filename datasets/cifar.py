@@ -2,7 +2,7 @@ import torchvision
 from typing import List, Any
 from torchvision import transforms as trans
 from torchvision.datasets import VisionDataset
-from datasets.base import EasyDataset
+from .base import EasyDataset
 
 
 class Cifar(EasyDataset):

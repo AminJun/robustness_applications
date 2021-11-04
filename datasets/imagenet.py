@@ -1,8 +1,8 @@
 from torchvision.datasets import VisionDataset
-
-from datasets.base import EasyDataset
 from torchvision import transforms as trans
 from torchvision.datasets import ImageFolder
+
+from .base import EasyDataset
 
 
 class ImageNet(EasyDataset):
@@ -13,8 +13,6 @@ class ImageNet(EasyDataset):
 
         self.eval_transforms = trans.Compose([trans.Resize(224), trans.CenterCrop(224), trans.ToTensor(), ])
         self.train_transforms = trans.Compose([trans.Resize(224), trans.CenterCrop(224), trans.ToTensor(), ])
-        #self.train_transforms = trans.Compose(
-        #    [trans.RandomResizedCrop(224), trans.RandomHorizontalFlip(), trans.ToTensor()])
 
     def eval(self) -> VisionDataset:
         return ImageFolder(root=self._root.format('val'), transform=self.eval_transforms)
