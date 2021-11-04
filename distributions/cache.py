@@ -9,7 +9,7 @@ class CacheLocal:
 
     def run_or_load(self, callable_func, index: int = -1, *args, **kwargs):
         print(index)
-        name = f'{callable_func.__name__}.pt' if index >= 0 else f'{callable_func.__name__}_{index}.pt'
+        name = f'{callable_func.__name__}.pt' if index < 0 else f'{callable_func.__name__}_{index}.pt'
         os.makedirs(self.par, exist_ok=True)
         path = os.path.join(self.par, name)
         if os.path.exists(path):
