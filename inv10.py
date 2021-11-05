@@ -161,9 +161,9 @@ def main():
 
     images = torch.cat(images)
     t_classes = torch.cat(t_classes)
-    os.makedirs(f'desktop/im10_{method}_{args.l_norm}', exist_ok=True)
+    os.makedirs(f'desktop/im102_{method}_{args.l_norm}', exist_ok=True)
     for i, (im, t) in enumerate(zip(images, t_classes)):
-        torchvision.utils.save_image(im, f'desktop/im10_{method}_{args.l_norm}/{t}_{i % BATCH_SIZE}.png')
+        torchvision.utils.save_image(im, f'desktop/im102_{method}_{args.l_norm}/{t}_{i % BATCH_SIZE}.png')
     torchvision.utils.save_image(images, f'desktop/after_{method}.png')
 
 
