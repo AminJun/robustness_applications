@@ -124,10 +124,10 @@ def main():
     num_to_draw = 10
     BATCH_SIZE = 8
 
-    DATA = 'ImageNet'
-    from robustness import datasets
-    dataset_function = getattr(datasets, DATA)
-    dataset = dataset_function(DATA_PATH_DICT[DATA])
+    # DATA = 'ImageNet'
+    # from robustness import datasets
+    # dataset_function = getattr(datasets, DATA)
+    # dataset = dataset_function(DATA_PATH_DICT[DATA])
 
     model_kwargs = {
         'arch': 'resnet50',
