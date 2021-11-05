@@ -69,7 +69,7 @@ def _fix_random_seed(seed: int = 6247423):
 
 def exp_starter_pack() -> (str, Namespace, dict):
     args = Args.get_instance().get_args()
-    seed = 6147423 if not hasattr(args, 'seed') else args.feature
+    seed = 6147423 if not hasattr(args, 'seed') else args.seed
     _fix_random_seed(seed)
     exp_name = _get_exp_name()
     _fancy_print()
