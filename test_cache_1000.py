@@ -31,7 +31,6 @@ class LabelCompleter:
         if label.size(0) != self.n:
             output = torch.eye(self.n).to(self._device)
             for l, c in zip(label, self.classes):
-                pdb.set_trace()
                 output[c] = l
         return output.detach().clone()
 
