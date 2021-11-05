@@ -4,6 +4,7 @@ import pdb
 import torch
 import torchvision
 from robustness.attacker import AttackerModel
+from torch import nn
 from torch.utils.data import DataLoader, Subset
 import torchvision as tv
 from tqdm import tqdm
@@ -72,6 +73,14 @@ def main():
     labels = [comp(l) for l in labels]
     label = labels[method]
 
+    class IgnorantModel(nn.Module):
+        def __init__(self, sub: nn.Module):
+            super().__init__()
+            self.sub = sub
+
+        def forward(self, x: torch.tensor, *args, **kwargs):
+            return self.sub(x)
+
     def generation_loss(mod, inp, targ):
         op = mod(inp)
         loss = SoftCrossEntropy(label, reduction='none')(op, targ)
@@ -97,6 +106,7 @@ def main():
     dataset_function = getattr(datasets, DATA)
     dataset = dataset_function(DATA_PATH_DICT[DATA])
 
+    model = IgnorantModel(model.cuda()).cuda()
     model = AttackerModel(model, dataset).cuda()
 
     for i in tqdm(classes):
