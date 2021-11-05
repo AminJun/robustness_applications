@@ -41,7 +41,7 @@ def main():
     method = args.method
 
     model, image_size, batch_size, name = model_library[33]()
-    inits = CachedInits('.', down_rate=8)
+    inits = CachedInits('.', down_rate=4)
 
     classes = [10, 200, 980, 970, 37, 119, 281, 449]
     for c in classes:
@@ -89,7 +89,7 @@ def main():
     kwargs = {
         'custom_loss': generation_loss,
         'constraint': '2',
-        'eps': 400,
+        'eps': 4000,
         'step_size': 1,
         'iterations': 60,
         'targeted': True,
@@ -99,7 +99,7 @@ def main():
 
     print("========== Starting =============")
     num_to_draw = 10
-    BATCH_SIZE = 10
+    BATCH_SIZE = 8
 
     DATA = 'ImageNet'
     from robustness import datasets
@@ -114,15 +114,14 @@ def main():
         im_seed = torch.cat([inits(t.item(), force_new=True) for t in target_class])
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
-        torchvision.utils.save_image(im_seed, 'before.png')
         _, im_gen = model(im_seed, target_class.long(), make_adv=True, do_tqdm=True, **kwargs)
-        torchvision.utils.save_image(im_gen, 'after.png')
         images.append(im_gen)
 
     images = torch.cat(images)
     os.makedirs(f'desktop/im1000_{method}', exist_ok=True)
     for i, im in enumerate(images):
         torchvision.utils.save_image(im, f'desktop/im1000_{method}/{i}.png')
+    torchvision.utils.save_image(images, 'desktop/after.png')
 
 
 if __name__ == '__main__':
