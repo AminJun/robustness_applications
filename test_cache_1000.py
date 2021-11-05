@@ -118,9 +118,9 @@ def main():
         images.append(im_gen)
 
     images = torch.cat(images)
-    os.makedirs(f'desktop/m{method}', exist_ok=True)
+    os.makedirs(f'desktop/im1000_{method}', exist_ok=True)
     for i, im in enumerate(images):
-        torchvision.utils.save_image(im, f'desktop/im1000_method}/{i}.png')
+        torchvision.utils.save_image(im, f'desktop/im1000_{method}/{i}.png')
 
 
 if __name__ == '__main__':
