@@ -114,7 +114,9 @@ def main():
         im_seed = torch.cat([inits(t.item(), force_new=True) for t in target_class])
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
+        torchvision.utils.save_image(im_seed, 'before.png')
         _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
+        torchvision.utils.save_image(im_seed, 'after.png')
         images.append(im_gen)
 
     images = torch.cat(images)
