@@ -115,7 +115,7 @@ def main():
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
         torchvision.utils.save_image(im_seed, 'before.png')
-        _, im_gen = model(im_seed, target_class.long(), make_adv=True, attacker_kwargs={'do_tqdm': True}, **kwargs)
+        _, im_gen = model(im_seed, target_class.long(), make_adv=True, do_tqdm=True, **kwargs)
         torchvision.utils.save_image(im_seed, 'after.png')
         images.append(im_gen)
 
