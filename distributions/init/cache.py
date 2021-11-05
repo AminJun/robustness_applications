@@ -60,7 +60,7 @@ class CachedInits(CacheLocal):
         d_size = self.image_size // self.down_rate
         sample = dist.sample().view(1, 3, d_size, d_size)
         if self.up is None:
-            self.up = torch.nn.Upsample(size=(d_size, d_size), mode='bilinear', align_corners=False)
+            self.up = torch.nn.Upsample(size=(self.image_size, self.image_size), mode='bilinear', align_corners=False)
         return self.up(sample).clone().detach()
 
     @torch.no_grad()
