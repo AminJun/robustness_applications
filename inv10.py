@@ -44,6 +44,7 @@ def main():
 
     # model, image_size, batch_size, name = model_library[33]()
     inits = ImageNetMultiVariate()
+    batch_size = 10
 
     # inits = CachedInits('.', down_rate=4)
 
