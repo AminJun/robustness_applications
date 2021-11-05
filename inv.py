@@ -85,11 +85,6 @@ print(label)
 def get_loss(mode: int):
     def generation_loss(mod, inp, targ):
         op = mod(inp)
-        # if mode is 4:
-        #    loss = ch.nn.CrossEntropyLoss(reduction='none')(op, targ)
-        # else:
-        #     loss = SoftCrossEntropy(label, reduction='none')(op, targ)
-        #    pdb.set_trace()
         loss = SoftCrossEntropy(label, reduction='none')(op, targ)
         return loss, None
 
@@ -105,12 +100,6 @@ kwargs = {
     'targeted': True,
 }
 
-if DATA == 'CIFAR':
-    kwargs['eps'] = 30
-    kwargs['step_size'] = 0.5
-    kwargs['iterations'] = 60
-
-show_seed = False
 images = []
 
 print("========== Starting =============")

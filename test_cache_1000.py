@@ -37,12 +37,18 @@ def main():
     eval = DataLoader(eval, batch_size, num_workers=4)
     train = DataLoader(train, batch_size, num_workers=4)
 
-    labels_cache = IN1000RobustLabels('.')
+    labels_cache = IN1000RobustLabels('.', n_classes=1000)
     labels_cache.cache(model, train, eval)
     labels = []
     for i in range(7):
         labels.append(labels_cache(mode=i))
+
     pdb.set_trace()
+
+    # cached_data.cache(model, train_loader, test_loader)
+    # label = cached_data().cuda()
+    # print(label)
+    # pdb.set_trace()
 
 
 if __name__ == '__main__':
