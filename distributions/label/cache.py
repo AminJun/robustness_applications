@@ -26,7 +26,7 @@ class CachedLabels(SoftLabelData, CacheLocal):
         t_x, e_x = sm(t_x), sm(e_x)
 
         classes = t_y.unique()
-        self.n = len(classes)
+        self.n = e_y.shape[-1]
         self.one_t = self.run_or_load(self.cache_one_train, predictions=t_x, targets=t_y, classes=classes)
         self.one_e = self.run_or_load(self.cache_one_test, predictions=e_x, targets=e_y, classes=classes)
         self.mean_t = self.run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y, classes=classes)
@@ -49,7 +49,7 @@ class CachedLabels(SoftLabelData, CacheLocal):
     @torch.no_grad()
     def cache_sampled(self, cov: torch.tensor, mean: torch.tensor,
                       classes: torch.tensor = None) -> torch.tensor:
-        dists = [MultivariateNormal(m, covariance_matrix=c) for m, c in zip(mean, cov)]
+        dists = {i: MultivariateNormal(m, covariance_matrix=c) for m, c, i in zip(mean, cov, classes)}
         return torch.stack([dists[i].sample() for i in classes])
 
     @torch.no_grad()
@@ -67,9 +67,9 @@ class CachedLabels(SoftLabelData, CacheLocal):
                    ) -> torch.tensor:
         cov = []
 
-        for i in classes:
+        for ii, i in enumerate(classes):
             imc = p[t == i]
-            normalized = imc - m[i].unsqueeze(dim=0)
+            normalized = imc - m[ii].unsqueeze(dim=0)
             cov.append((normalized.t() @ normalized / len(imc)) + (1e-6 * torch.eye(self.n)))
         return torch.stack(cov)
 
