@@ -13,6 +13,20 @@ class IN1000RobustLabels(CachedLabels):
     pass
 
 
+class LabelCompleter:
+    def __init__(self, n_classes: int, classes: list):
+        self.n = n_classes
+        self.classes = classes
+
+    def __call__(self, label: torch.tensor) -> torch.tensor:
+        output = label
+        if label.size(0) != self.n:
+            output = torch.eye(self.n)
+            for l, c in zip(label, self.classes):
+                output[c].data = l.data
+        return output
+
+
 def main():
     model, image_size, batch_size, name = model_library[33]()
     inits = CachedInits('.', down_rate=8)
@@ -42,6 +56,9 @@ def main():
     labels = []
     for i in range(7):
         labels.append(labels_cache(mode=i))
+
+    comp = LabelCompleter(1000, classes)
+    labels = [comp(l) for l in labels]
 
     pdb.set_trace()
 
