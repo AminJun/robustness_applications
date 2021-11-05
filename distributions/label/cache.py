@@ -27,64 +27,76 @@ class CachedLabels(SoftLabelData, CacheLocal):
 
         classes = t_y.unique()
         self.n = len(classes)
-        self.one_t = self.run_or_load(self.cache_one_train, predictions=t_x, targets=t_y)
-        self.one_e = self.run_or_load(self.cache_one_test, predictions=e_x, targets=e_y)
-        self.mean_t = self.run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y)
-        self.mean_e = self.run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y)
-        self.cov_t = self.run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t)
-        self.cov_e = self.run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e)
-        self.sample_t = self.run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=self.cov_t)
-        self.sample_e = self.run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=self.cov_e)
+        self.one_t = self.run_or_load(self.cache_one_train, predictions=t_x, targets=t_y, classes=classes)
+        self.one_e = self.run_or_load(self.cache_one_test, predictions=e_x, targets=e_y, classes=classes)
+        self.mean_t = self.run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y, classes=classes)
+        self.mean_e = self.run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y, classes=classes)
+        self.cov_t = self.run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t, classes=classes)
+        self.cov_e = self.run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e, classes=classes)
+        self.sample_t = self.run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=self.cov_t, classes=classes)
+        self.sample_e = self.run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=self.cov_e, classes=classes)
 
     @torch.no_grad()
-    def cache_sampled_t(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
-        return self.cache_sampled(cov, mean)
+    def cache_sampled_t(self, cov: torch.tensor, mean: torch.tensor,
+                        classes: torch.tensor = None) -> torch.tensor:
+        return self.cache_sampled(cov, mean, classes)
 
     @torch.no_grad()
-    def cache_sampled_e(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
-        return self.cache_sampled(cov, mean)
+    def cache_sampled_e(self, cov: torch.tensor, mean: torch.tensor,
+                        classes: torch.tensor = None) -> torch.tensor:
+        return self.cache_sampled(cov, mean, classes)
 
     @torch.no_grad()
-    def cache_sampled(self, cov: torch.tensor, mean: torch.tensor) -> torch.tensor:
+    def cache_sampled(self, cov: torch.tensor, mean: torch.tensor,
+                      classes: torch.tensor = None) -> torch.tensor:
         dists = [MultivariateNormal(m, covariance_matrix=c) for m, c in zip(mean, cov)]
-        return torch.stack([dists[i].sample() for i in range(self.n)])
+        return torch.stack([dists[i].sample() for i in classes])
 
     @torch.no_grad()
-    def cache_dist_t(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
-        return self.cache_dist(p, t, m)
+    def cache_dist_t(self, p: torch.tensor, t: torch.tensor, m: torch.tensor,
+                     classes: torch.tensor = None) -> torch.tensor:
+        return self.cache_dist(p, t, m, classes)
 
     @torch.no_grad()
-    def cache_dist_e(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
-        return self.cache_dist(p, t, m)
+    def cache_dist_e(self, p: torch.tensor, t: torch.tensor, m: torch.tensor,
+                     classes: torch.tensor = None) -> torch.tensor:
+        return self.cache_dist(p, t, m, classes)
 
     @torch.no_grad()
-    def cache_dist(self, p: torch.tensor, t: torch.tensor, m: torch.tensor) -> torch.tensor:
+    def cache_dist(self, p: torch.tensor, t: torch.tensor, m: torch.tensor, classes: torch.tensor = None
+                   ) -> torch.tensor:
         cov = []
-        for i in range(self.n):
+
+        for i in classes:
             imc = p[t == i]
             normalized = imc - m[i].unsqueeze(dim=0)
             cov.append((normalized.t() @ normalized / len(imc)) + (1e-6 * torch.eye(self.n)))
         return torch.stack(cov)
 
     @torch.no_grad()
-    def cache_one_train(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return torch.stack([predictions[targets == i][0] for i in range(self.n)])
+    def cache_one_train(self, predictions: torch.tensor, targets: torch.tensor, classes: torch.tensor = None
+                        ) -> torch.tensor:
+        return torch.stack([predictions[targets == i][0] for i in classes])
 
     @torch.no_grad()
-    def cache_one_test(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return torch.stack([predictions[targets == i][0] for i in range(self.n)])
+    def cache_one_test(self, predictions: torch.tensor, targets: torch.tensor,
+                       classes: torch.tensor = None) -> torch.tensor:
+        return torch.stack([predictions[targets == i][0] for i in classes])
 
     @torch.no_grad()
-    def cache_mean_t(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return self.cache_mean(predictions, targets)
+    def cache_mean_t(self, predictions: torch.tensor, targets: torch.tensor,
+                     classes: torch.tensor = None) -> torch.tensor:
+        return self.cache_mean(predictions, targets, classes)
 
     @torch.no_grad()
-    def cache_mean_e(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return self.cache_mean(predictions, targets)
+    def cache_mean_e(self, predictions: torch.tensor, targets: torch.tensor,
+                     classes: torch.tensor = None) -> torch.tensor:
+        return self.cache_mean(predictions, targets, classes)
 
     @torch.no_grad()
-    def cache_mean(self, predictions: torch.tensor, targets: torch.tensor) -> torch.tensor:
-        return torch.stack([predictions[targets == i].mean(dim=0) for i in range(self.n)])
+    def cache_mean(self, predictions: torch.tensor, targets: torch.tensor,
+                   classes: torch.tensor = None) -> torch.tensor:
+        return torch.stack([predictions[targets == i].mean(dim=0) for i in classes])
 
     @torch.no_grad()
     def cache_train(self, model: nn.Module, train: DataLoader) -> (torch.tensor, torch.tensor):
