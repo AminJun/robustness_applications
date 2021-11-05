@@ -89,7 +89,7 @@ def main():
     kwargs = {
         'custom_loss': generation_loss,
         'constraint': '2',
-        'eps': 4000,
+        'eps': 40 * args.l_norm,
         'step_size': 1,
         'iterations': 60,
         'targeted': True,
@@ -118,10 +118,10 @@ def main():
         images.append(im_gen)
 
     images = torch.cat(images)
-    os.makedirs(f'desktop/im1000_{method}', exist_ok=True)
+    os.makedirs(f'desktop/im1000_{method}_{args.l_norm}', exist_ok=True)
     for i, im in enumerate(images):
-        torchvision.utils.save_image(im, f'desktop/im1000_{method}/{i}.png')
-    torchvision.utils.save_image(images, 'desktop/after.png')
+        torchvision.utils.save_image(im, f'desktop/im1000_{method}_{args.l_norm}/{i}.png')
+    # torchvision.utils.save_image(images, 'desktop/after.png')
 
 
 if __name__ == '__main__':
