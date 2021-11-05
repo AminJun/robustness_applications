@@ -13,8 +13,8 @@ from ..cache import CacheLocal
 class CachedLabels(SoftLabelData, CacheLocal):
     _device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    def __init__(self, cache_path: str, mode: int = -1):
-        SoftLabelData.__init__(self, n_classes=-1, mode=mode)
+    def __init__(self, cache_path: str, mode: int = -1, n_classes: int = -1):
+        SoftLabelData.__init__(self, n_classes=n_classes, mode=mode)
         CacheLocal.__init__(self, cache_path)
         self.one_t = self.one_e = self.mean_t = self.mean_e = self.sample_t = None
         self.sample_e = self.cov_e = self.cov_t = None
