@@ -47,9 +47,9 @@ def main():
     for c in classes:
         inits.cache(image_net, c)
     samples = []
-    for _ in range(4):
-        for c in classes:
-            samples.append(inits(c))
+    # for _ in range(4):
+    #     for c in classes:
+    #         samples.append(inits(c))
     for _ in range(4):
         for c in classes:
             samples.append(inits(c, True))
