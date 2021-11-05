@@ -123,6 +123,8 @@ class CachedLabels(SoftLabelData, CacheLocal):
             y = y.to(self._device)
             images.append(model(x).detach().clone())
             labels.append(y.detach().clone())
+            if len(images) > 100:
+                break
         return torch.cat(images).cpu(), torch.cat(labels).cpu()
 
     def get_one_e(self, force_new: bool = True) -> torch.tensor:
