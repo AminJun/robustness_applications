@@ -108,19 +108,22 @@ def main():
 
     model = IgnorantModel(model.cuda()).cuda()
     model = AttackerModel(model, dataset).cuda()
+    t_classes = []
 
     for i in tqdm(classes):
         target_class = i * torch.ones((BATCH_SIZE,)).long().cuda()
         im_seed = torch.cat([inits(t.item(), force_new=True) for t in target_class])
+        t_classes.append(target_class)
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
         _, im_gen = model(im_seed, target_class.long(), make_adv=True, do_tqdm=True, **kwargs)
         images.append(im_gen)
 
     images = torch.cat(images)
+    t_classes = torch.cat(t_classes)
     os.makedirs(f'desktop/im1000_{method}_{args.l_norm}', exist_ok=True)
-    for i, im in enumerate(images):
-        torchvision.utils.save_image(im, f'desktop/im1000_{method}_{args.l_norm}/{i}.png')
+    for i, (im, t) in enumerate(zip(images, t_classes)):
+        torchvision.utils.save_image(im, f'desktop/im1000_{method}_{args.l_norm}/{t}_{i % BATCH_SIZE}.png')
     # torchvision.utils.save_image(images, 'desktop/after.png')
 
 
