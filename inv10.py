@@ -18,31 +18,31 @@ from user_constants import DATA_PATH_DICT
 from utils import exp_starter_pack
 
 
-class IN1000RobustLabels(CachedLabels):
-    pass
+# class IN1000RobustLabels(CachedLabels):
+#     pass
 
 
-class LabelCompleter:
-    _device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-    def __init__(self, n_classes: int, classes: list):
-        self.n = n_classes
-        self.classes = sorted(classes)
-
-    def __call__(self, label: torch.tensor) -> torch.tensor:
-        output = label
-        if label.size(0) != self.n:
-            output = torch.eye(self.n).to(self._device)
-            for l, c in zip(label, self.classes):
-                output[c] = l
-        return output.detach().clone()
+# class LabelCompleter:
+#     _device = 'cuda' if torch.cuda.is_available() else 'cpu'
+#
+#     def __init__(self, n_classes: int, classes: list):
+#         self.n = n_classes
+#         self.classes = sorted(classes)
+#
+#     def __call__(self, label: torch.tensor) -> torch.tensor:
+#         output = label
+#         if label.size(0) != self.n:
+#             output = torch.eye(self.n).to(self._device)
+#             for l, c in zip(label, self.classes):
+#                 output[c] = l
+#         return output.detach().clone()
 
 
 def main():
     exp_name, args, _ = exp_starter_pack()
     method = args.method
 
-    model, image_size, batch_size, name = model_library[33]()
+    # model, image_size, batch_size, name = model_library[33]()
     inits = ImageNetMultiVariate()
 
     # inits = CachedInits('.', down_rate=4)
@@ -80,6 +80,14 @@ def main():
     #
     #     def forward(self, x) -> torch.tensor:
     #         return self.m(x)[0]
+
+    model_kwargs = {
+        'arch': 'resnet50',
+        'dataset': dataset,
+        'resume_path': f'./models/{DATA}.pt'
+    }
+    model, _ = model_utils.make_and_restore_model(**model_kwargs)
+    model.eval()
 
     cached_data = CachedLabels('.', method)
     cached_data.cache(model, train_loader, test_loader)
@@ -129,14 +137,8 @@ def main():
     # dataset_function = getattr(datasets, DATA)
     # dataset = dataset_function(DATA_PATH_DICT[DATA])
 
-    model_kwargs = {
-        'arch': 'resnet50',
-        'dataset': dataset,
-        'resume_path': f'./models/{DATA}.pt'
-    }
-
-    model, _ = model_utils.make_and_restore_model(**model_kwargs)
-    model.eval()
+    # model, _ = model_utils.make_and_restore_model(**model_kwargs)
+    # model.eval()
 
     # model = IgnorantModel(model.cuda()).cuda()
     # model = AttackerModel(model, dataset).cuda()
@@ -148,7 +150,7 @@ def main():
 
     for i in tqdm(classes):
         target_class = i * torch.ones((BATCH_SIZE,)).long().cuda()
-        im_seed = torch.cat([up(inits[t.item()].sample().view(1, 3, 56, 56) ) for t in target_class])
+        im_seed = torch.cat([up(inits[t.item()].sample().view(1, 3, 56, 56)) for t in target_class])
         t_classes.append(target_class)
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
