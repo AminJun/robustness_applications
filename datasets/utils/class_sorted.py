@@ -4,6 +4,7 @@ import torch
 from torch.utils import model_zoo
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
+import sys
 
 from .base import EasyDataset
 
@@ -15,8 +16,10 @@ class ClassSortedFactory:
         self.name = f'{other.__class__.__name__}_{"eval" if not train else "train"}'
         url = f'https://github.com/AminJun/PublicModels/releases/download/main/{self.name}.pt'
         if download:
+            print('Downloading', file=sys.stderr)
             self.indices = model_zoo.load_url(url, map_location='cpu')
         else:
+            print('Computing', file=sys.stderr)
             data = other.train() if train else other.eval()
             # self.indices = self.cache(data)
             self.indices = self.binary_search_cache(data)
