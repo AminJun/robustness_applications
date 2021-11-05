@@ -120,7 +120,7 @@ def main():
     images = torch.cat(images)
     os.makedirs(f'desktop/m{method}', exist_ok=True)
     for i, im in enumerate(images):
-        torchvision.utils.save_image(im, f'desktop/m{method}/{i}.png')
+        torchvision.utils.save_image(im, f'desktop/im1000_method}/{i}.png')
 
 
 if __name__ == '__main__':
