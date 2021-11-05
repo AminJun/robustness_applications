@@ -91,7 +91,7 @@ def main():
         'constraint': '2',
         'eps': 40 * args.l_norm,
         'step_size': 0.1,
-        'iterations': 60,
+        'iterations': 160,
         'targeted': True,
     }
 
@@ -124,7 +124,7 @@ def main():
     os.makedirs(f'desktop/im1000_{method}_{args.l_norm}', exist_ok=True)
     # for i, (im, t) in enumerate(zip(images, t_classes)):
     #     torchvision.utils.save_image(im, f'desktop/im1000_{method}_{args.l_norm}/{t}_{i % BATCH_SIZE}.png')
-    torchvision.utils.save_image(images, 'desktop/after.png')
+    torchvision.utils.save_image(images, f'desktop/after_{method}.png')
 
 
 if __name__ == '__main__':
