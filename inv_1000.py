@@ -90,7 +90,7 @@ def main():
         'custom_loss': generation_loss,
         'constraint': '2',
         'eps': 40 * args.l_norm,
-        'step_size': 1,
+        'step_size': 0.1,
         'iterations': 60,
         'targeted': True,
     }
