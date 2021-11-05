@@ -12,7 +12,7 @@ class ClassSortedFactory:
     def __init__(self, other: EasyDataset, train: bool, download: bool = False):
         self.other = other
         self.indices = {}
-        self.name = f'{other.__class__.__name__}_{"eval" if not train else "eval"}'
+        self.name = f'{other.__class__.__name__}_{"eval" if not train else "train"}'
         url = f'https://github.com/AminJun/PublicModels/releases/download/main/{self.name}.pt'
         if download:
             self.indices = model_zoo.load_url(url, map_location='cpu')
@@ -20,6 +20,7 @@ class ClassSortedFactory:
             data = other.train() if train else other.eval()
             # self.indices = self.cache(data)
             self.indices = self.binary_search_cache(data)
+            # TODO: This part has to be debugged!
             for i in range(1, 1000):
                 if self.indices[i - 1][0][1] != self.indices[i][0][0]:
                     pdb.set_trace()
