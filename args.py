@@ -40,7 +40,7 @@ class Args:
         parser.add_argument('-t', '--toml', type=str, help='Path to toml file that contains the default configs')
         parser.add_argument('-x', '--experiment', type=str, help='Experiment name')
 
-        parser.add_argument('-m', '--method', type=str, default=None,
+        parser.add_argument('-m', '--method', type=int, default=0,
                             help='Inversion method, differs for every experiment')
         parser.add_argument('--seed', type=int, default=6247423, help='Random seed')
         return parser
