@@ -100,7 +100,7 @@ def main():
     model = AttackerModel(model, dataset)
 
     for i in tqdm(classes):
-        target_class = i * torch.ones((BATCH_SIZE,)).cuda()
+        target_class = i * torch.ones((BATCH_SIZE,)).long().cuda()
         im_seed = torch.stack([inits(t, force_new=True) for t in target_class])
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
