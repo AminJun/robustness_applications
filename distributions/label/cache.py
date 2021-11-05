@@ -1,3 +1,5 @@
+import pdb
+
 from torch import nn
 from torch.distributions import MultivariateNormal
 from torch.utils.data import DataLoader
@@ -70,6 +72,7 @@ class CachedLabels(SoftLabelData, CacheLocal):
         for ii, i in enumerate(classes):
             imc = p[t == i]
             normalized = imc - m[ii].unsqueeze(dim=0)
+            pdb.set_trace()
             cov.append((normalized.t() @ normalized / len(imc)) + (1e-6 * torch.eye(self.n)))
         return torch.stack(cov)
 
