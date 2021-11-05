@@ -18,7 +18,7 @@ class LabelCompleter:
 
     def __init__(self, n_classes: int, classes: list):
         self.n = n_classes
-        self.classes = classes
+        self.classes = sorted(classes)
 
     def __call__(self, label: torch.tensor) -> torch.tensor:
         output = label
