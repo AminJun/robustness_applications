@@ -33,8 +33,7 @@ def main():
     factory_t = ClassSortedFactory(image_net, True, True)
     eval = Subset(image_net.eval(), [i for c in classes for i in factory_e(c)])
     train_indices = [i for c in classes for i in factory_t(c)]
-    pdb.set_trace()
-    train = Subset(image_net.eval(), train_indices)
+    train = Subset(image_net.train(), train_indices)
     eval = DataLoader(eval, batch_size, num_workers=4)
     train = DataLoader(train, batch_size, num_workers=4)
 
