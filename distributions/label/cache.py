@@ -45,10 +45,13 @@ class CachedLabels(SoftLabelData, CacheLocal):
 
         self.mean_lt = self.run_or_load(self.cache_mean_lt, predictions=t_l, targets=t_y, classes=classes)
         self.mean_le = self.run_or_load(self.cache_mean_le, predictions=e_l, targets=e_y, classes=classes)
+        pdb.set_trace()
         self.cov_lt = self.run_or_load(self.cache_dist_lt, p=t_l, t=t_y, m=self.mean_lt, classes=classes)
         self.cov_le = self.run_or_load(self.cache_dist_le, p=e_l, t=e_y, m=self.mean_le, classes=classes)
+        pdb.set_trace()
         self.sample_lt = self.run_or_load(self.cache_sampled_lt, mean=self.mean_lt, cov=self.cov_lt, classes=classes)
         self.sample_le = self.run_or_load(self.cache_sampled_le, mean=self.mean_le, cov=self.cov_le, classes=classes)
+        pdb.set_trace()
 
     @torch.no_grad()
     def cache_sampled_t(self, cov: torch.tensor, mean: torch.tensor,
