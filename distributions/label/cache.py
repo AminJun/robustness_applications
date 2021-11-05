@@ -28,6 +28,7 @@ class CachedLabels(SoftLabelData, CacheLocal):
         t_x, e_x = sm(t_x), sm(e_x)
 
         classes = t_y.unique()
+        pdb.set_trace()
         self.n = e_y.shape[-1]
         self.one_t = self.run_or_load(self.cache_one_train, predictions=t_x, targets=t_y, classes=classes)
         self.one_e = self.run_or_load(self.cache_one_test, predictions=e_x, targets=e_y, classes=classes)
