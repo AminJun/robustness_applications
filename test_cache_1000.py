@@ -97,7 +97,7 @@ def main():
     dataset_function = getattr(datasets, DATA)
     dataset = dataset_function(DATA_PATH_DICT[DATA])
 
-    model, _ = AttackerModel(model, dataset)
+    model = AttackerModel(model, dataset)
 
     for i in tqdm(classes):
         target_class = i * torch.ones((BATCH_SIZE,)).cuda()
