@@ -23,26 +23,26 @@ class CachedLabels(SoftLabelData, CacheLocal):
     def cache(self, model: nn.Module, train: DataLoader, test: DataLoader):
         t_x, t_y = self.run_or_load(self.cache_train, model=model, train=train)
         e_x, e_y = self.run_or_load(self.cache_test, model=model, test=test)
-        pdb.set_trace()
+        # pdb.set_trace()
 
         sm = torch.nn.Softmax()
         t_x, e_x = sm(t_x), sm(e_x)
-        pdb.set_trace()
+        # pdb.set_trace()
 
         classes = t_y.unique()
         self.n = e_x.shape[-1]
         self.one_t = self.run_or_load(self.cache_one_train, predictions=t_x, targets=t_y, classes=classes)
         self.one_e = self.run_or_load(self.cache_one_test, predictions=e_x, targets=e_y, classes=classes)
-        pdb.set_trace()
+        # pdb.set_trace()
         self.mean_t = self.run_or_load(self.cache_mean_t, predictions=t_x, targets=t_y, classes=classes)
         self.mean_e = self.run_or_load(self.cache_mean_e, predictions=e_x, targets=e_y, classes=classes)
-        pdb.set_trace()
+        # pdb.set_trace()
         self.cov_t = self.run_or_load(self.cache_dist_t, p=t_x, t=t_y, m=self.mean_t, classes=classes)
         self.cov_e = self.run_or_load(self.cache_dist_e, p=e_x, t=e_y, m=self.mean_e, classes=classes)
-        pdb.set_trace()
+        # pdb.set_trace()
         self.sample_t = self.run_or_load(self.cache_sampled_t, mean=self.mean_t, cov=self.cov_t, classes=classes)
         self.sample_e = self.run_or_load(self.cache_sampled_e, mean=self.mean_e, cov=self.cov_e, classes=classes)
-        pdb.set_trace()
+        # pdb.set_trace()
 
     @torch.no_grad()
     def cache_sampled_t(self, cov: torch.tensor, mean: torch.tensor,
