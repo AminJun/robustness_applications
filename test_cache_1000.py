@@ -3,6 +3,7 @@ import pdb
 
 import torch
 import torchvision
+from robustness.attacker import AttackerModel
 from torch.utils.data import DataLoader, Subset
 import torchvision as tv
 from tqdm import tqdm
@@ -10,6 +11,7 @@ from tqdm import tqdm
 from datasets import image_net, ClassSortedFactory
 from model import model_library
 from distributions import CachedInits, CachedLabels, SoftCrossEntropy
+from user_constants import DATA_PATH_DICT
 from utils import exp_starter_pack
 
 
@@ -91,7 +93,14 @@ def main():
     num_to_draw = 10
     BATCH_SIZE = 10
 
-    for i in tqdm(range(classes)):
+    DATA = 'ImageNet'
+    from robustness import datasets
+    dataset_function = getattr(datasets, DATA)
+    dataset = dataset_function(DATA_PATH_DICT[DATA])
+
+    model, _ = AttackerModel(model, dataset)
+
+    for i in tqdm(classes):
         target_class = i * torch.ones((BATCH_SIZE,)).cuda()
         im_seed = torch.stack([inits(t, force_new=True) for t in target_class])
 
