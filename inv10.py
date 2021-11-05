@@ -74,13 +74,13 @@ def main():
     dataset = dataset_function(DATA_PATH_DICT[DATA])
     train_loader, test_loader = dataset.make_loaders(workers=4, batch_size=batch_size, data_aug=False)
 
-    # class FirstOutputWrapper(nn.Module):
-    #     def __init__(self, model: nn.Module):
-    #         super().__init__()
-    #         self.m = model
-    #
-    #     def forward(self, x) -> torch.tensor:
-    #         return self.m(x)[0]
+    class FirstOutputWrapper(nn.Module):
+        def __init__(self, model: nn.Module):
+            super().__init__()
+            self.m = model
+
+        def forward(self, x) -> torch.tensor:
+            return self.m(x)[0]
 
     model_kwargs = {
         'arch': 'resnet50',
@@ -91,7 +91,7 @@ def main():
     model.eval()
 
     cached_data = CachedLabels('.', method)
-    cached_data.cache(model, train_loader, test_loader)
+    cached_data.cache(FirstOutputWrapper(model), train_loader, test_loader)
     label = cached_data().cuda()
     print(label.shape)
     print(label)
