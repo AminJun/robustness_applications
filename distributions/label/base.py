@@ -15,7 +15,7 @@ class SoftLabelData:
 
     def get_labels(self, mode: int, force_new: bool = False) -> torch.tensor:
         modes = [self.get_one_e, self.get_one_t, self.get_mean_t, self.get_mean_e,
-                 self.get_dist_e, self.get_dist_t, self.one_hot]
+                 self.get_dist_e, self.get_dist_t, self.one_hot, self.get_logit_t, self.get_logit_e]
         return modes[mode](force_new=force_new)
 
     def get_one_e(self, force_new: bool = False) -> torch.tensor:
@@ -34,6 +34,12 @@ class SoftLabelData:
         raise NotImplementedError
 
     def get_dist_e(self, force_new: bool = False) -> torch.tensor:
+        raise NotImplementedError
+
+    def get_logit_t(self, force_new: bool = False) -> torch.tensor:
+        raise NotImplementedError
+
+    def get_logit_e(self, force_new: bool = False) -> torch.tensor:
         raise NotImplementedError
 
     def one_hot(self, *args, **kwargs) -> torch.tensor:
