@@ -89,7 +89,7 @@ def main():
     kwargs = {
         'custom_loss': generation_loss,
         'constraint': '2',
-        'eps': 40,
+        'eps': 400,
         'step_size': 1,
         'iterations': 60,
         'targeted': True,
