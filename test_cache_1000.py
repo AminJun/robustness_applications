@@ -14,6 +14,8 @@ class IN1000RobustLabels(CachedLabels):
 
 
 class LabelCompleter:
+    _device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
     def __init__(self, n_classes: int, classes: list):
         self.n = n_classes
         self.classes = classes
@@ -21,10 +23,10 @@ class LabelCompleter:
     def __call__(self, label: torch.tensor) -> torch.tensor:
         output = label
         if label.size(0) != self.n:
-            output = torch.eye(self.n)
+            output = torch.eye(self.n).to(self._device)
             for l, c in zip(label, self.classes):
-                output[c].data = l.data
-        return output
+                output[c] = l
+        return output.detach().clone()
 
 
 def main():
