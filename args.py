@@ -39,17 +39,10 @@ class Args:
         parser = argparse.ArgumentParser(description='Real Visualization')
         parser.add_argument('-t', '--toml', type=str, help='Path to toml file that contains the default configs')
         parser.add_argument('-x', '--experiment', type=str, help='Experiment name')
-        parser.add_argument('-l', '--layer', type=int, default=0, help='# Layer')
-        parser.add_argument('-f', '--feature', type=int, default=0, help='# Feature')
-        parser.add_argument('-y', '--target', type=int, default=0, help='# Feature')
 
         parser.add_argument('-m', '--method', type=str, default=None,
                             help='Inversion method, differs for every experiment')
         parser.add_argument('--seed', type=int, default=6247423, help='Random seed')
-
-        parser.add_argument('-g', '--grid', type=float, default=0, help='Variable "a" for development')
-
-        parser.add_argument('-n', '--network', type=int, default=0, help='Max 100, get Network')
         return parser
 
     def get_args(self):

@@ -1,12 +1,16 @@
+import os
 import pdb
 
 import torch
+import torchvision
 from torch.utils.data import DataLoader, Subset
 import torchvision as tv
+from tqdm import tqdm
 
 from datasets import image_net, ClassSortedFactory
 from model import model_library
-from distributions import CachedInits, CachedLabels
+from distributions import CachedInits, CachedLabels, SoftCrossEntropy
+from utils import exp_starter_pack
 
 
 class IN1000RobustLabels(CachedLabels):
@@ -31,6 +35,9 @@ class LabelCompleter:
 
 
 def main():
+    exp_name, args, _ = exp_starter_pack()
+    method = args.method
+
     model, image_size, batch_size, name = model_library[33]()
     inits = CachedInits('.', down_rate=8)
 
@@ -62,13 +69,40 @@ def main():
 
     comp = LabelCompleter(1000, classes)
     labels = [comp(l) for l in labels]
+    label = labels[method]
 
-    pdb.set_trace()
+    def generation_loss(mod, inp, targ):
+        op = mod(inp)
+        loss = SoftCrossEntropy(label, reduction='none')(op, targ)
+        return loss, None
 
-    # cached_data.cache(model, train_loader, test_loader)
-    # label = cached_data().cuda()
-    # print(label)
-    # pdb.set_trace()
+    kwargs = {
+        'custom_loss': generation_loss,
+        'constraint': '2',
+        'eps': 40,
+        'step_size': 1,
+        'iterations': 60,
+        'targeted': True,
+    }
+
+    images = []
+
+    print("========== Starting =============")
+    num_to_draw = 10
+    BATCH_SIZE = 10
+
+    for i in tqdm(range(classes)):
+        target_class = i * torch.ones((BATCH_SIZE,)).cuda()
+        im_seed = torch.stack([inits(t, force_new=True) for t in target_class])
+
+        im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
+        _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
+        images.append(im_gen)
+
+    images = torch.cat(images)
+    os.makedirs(f'desktop/m{method}', exist_ok=True)
+    for i, im in enumerate(images):
+        torchvision.utils.save_image(im, f'desktop/m{method}/{i}.png')
 
 
 if __name__ == '__main__':
