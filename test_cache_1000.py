@@ -101,7 +101,7 @@ def main():
 
     for i in tqdm(classes):
         target_class = i * torch.ones((BATCH_SIZE,)).long().cuda()
-        im_seed = torch.stack([inits(t.item(), force_new=True) for t in target_class])
+        im_seed = torch.cat([inits(t.item(), force_new=True) for t in target_class])
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
         _, im_gen = model(im_seed, target_class.long(), make_adv=True, **kwargs)
