@@ -106,7 +106,7 @@ class CachedLabels(SoftLabelData, CacheLocal):
             imc = p[t == i]
             normalized = imc - m[ii].unsqueeze(dim=0)
             # pdb.set_trace()
-            cov.append((normalized.t() @ normalized / len(imc)) + (1e-6 * torch.eye(self.n)))
+            cov.append((normalized.t() @ normalized / len(imc)) + (1e-4 * torch.eye(self.n)))
         return torch.stack(cov)
 
     @torch.no_grad()
