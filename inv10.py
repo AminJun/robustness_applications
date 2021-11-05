@@ -93,8 +93,8 @@ def main():
     cached_data = CachedLabels('.', method)
     cached_data.cache(model, train_loader, test_loader)
     label = cached_data().cuda()
+    print(label.shape)
     print(label)
-
     # labels_cache = IN1000RobustLabels('.', n_classes=1000)
     # labels_cache.cache(model, train, eval)
     # labels = []
