@@ -51,9 +51,9 @@ class CachedLabels(SoftLabelData, CacheLocal):
     @torch.no_grad()
     def cache_sampled(self, cov: torch.tensor, mean: torch.tensor,
                       classes: torch.tensor = None) -> torch.tensor:
-        dists = {i: MultivariateNormal(m, covariance_matrix=c) for m, c, i in zip(mean, cov, classes)}
+        dists = {i.item(): MultivariateNormal(m, covariance_matrix=c) for m, c, i in zip(mean, cov, classes)}
         pdb.set_trace()
-        return torch.stack([dists[i].sample() for i in classes])
+        return torch.stack([dists[i.item()].sample() for i in classes])
 
     @torch.no_grad()
     def cache_dist_t(self, p: torch.tensor, t: torch.tensor, m: torch.tensor,
