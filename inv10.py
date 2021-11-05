@@ -152,6 +152,7 @@ def main():
     for i in tqdm(classes):
         target_class = i * torch.ones((BATCH_SIZE,)).long().cuda()
         im_seed = torch.cat([up(inits[t.item()].sample().view(1, 3, 56, 56)) for t in target_class])
+        pdb.set_trace()
         t_classes.append(target_class)
 
         im_seed = torch.clamp(im_seed, min=0, max=1).cuda()
